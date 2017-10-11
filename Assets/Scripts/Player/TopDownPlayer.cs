@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TopDownPlayer : MonoBehaviour {
+public class TopDownPlayer : Player {
 
     GameObject playerSprite;
-    Rigidbody2D rb;
     public float speed = 1f;
 
 	// Use this for initialization
-	void Start () {
+	new void Start () {
+        base.Start();
         playerSprite = transform.GetChild(0).gameObject;
-        rb = GetComponent<Rigidbody2D>();
+        
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	new void Update () {
         rb.velocity = new Vector2(
             Input.GetAxis("Horizontal") * speed * Time.deltaTime, 
             Input.GetAxis("Vertical") * speed * Time.deltaTime

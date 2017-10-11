@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class SceneWarp : MonoBehaviour {
 
     public string sceneToLoad;
+    bool transitioning = false;
 
 	// Use this for initialization
 	void Start () {
@@ -14,16 +15,23 @@ public class SceneWarp : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+
 	}
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if ((col.GetComponent<PlayerMovement>() != null ||
-            col.GetComponent<TopDownPlayer>() != null) &&  
-            sceneToLoad != null)
+        if (sceneToLoad != null)
         {
-            SceneManager.LoadScene(sceneToLoad);
+            if (col.GetComponent<SideScrollingPlayer>())
+            {
+                StartCoroutine(col.GetComponent<SideScrollingPlayer>().blackout.FadeInBlack());
+                SceneManager.LoadSceneAsync(sceneToLoad);
+            }
+            else if (col.GetComponent<TopDownPlayer>())
+            {
+                StartCoroutine(col.GetComponent<TopDownPlayer>().blackout.FadeInBlack());
+                SceneManager.LoadSceneAsync(sceneToLoad);
+            }
         }
     }
 }
