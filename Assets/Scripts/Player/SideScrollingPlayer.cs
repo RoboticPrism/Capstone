@@ -1,20 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerMovement : MonoBehaviour {
+public class SideScrollingPlayer : Player {
 
     public float speed = 5.0f;
-    private Rigidbody2D rb;
     private bool hasControl = true;
-    public SpriteRenderer blackout;
 
 	// Use this for initialization
-	void Start () {
-        rb = this.GetComponent<Rigidbody2D>();
+	new void Start () {
+        base.Start();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	new void Update () {
         if (hasControl)
         {
             float jump_speed = 0f;
@@ -36,6 +34,8 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    
+
     // Fades in the blackout object, waits a bit, then moves the player to the new room
     IEnumerator WalkBetweenRoomsCoroutine(Door door)
     {
@@ -50,11 +50,7 @@ public class PlayerMovement : MonoBehaviour {
 		rm.SetCurrentRoom(newRoom);
 
         // Drop the blackout object over the camera
-        while (blackout.color.a < 1.0f)
-        {
-            blackout.color = new Color(0.0f, 0.0f, 0.0f, blackout.color.a + 0.05f);
-            yield return null;
-        }
+        yield return StartCoroutine(blackout.FadeInBlack());
 
         // Set the camera bounds to the new room
         newRoom.SetLimits();
@@ -77,11 +73,8 @@ public class PlayerMovement : MonoBehaviour {
         yield return new WaitForSeconds(0.5f);
 
         // Pull the blackout object off the camera
-        while (blackout.color.a > 0.0f)
-        {
-            blackout.color = new Color(0.0f, 0.0f, 0.0f, blackout.color.a - 0.01f);
-            yield return null;
-        }
+        yield return StartCoroutine(blackout.FadeOutBlack());
+
         // Now that the old room is offscree we can clean it up
         rm.CleanUpRooms();
 
