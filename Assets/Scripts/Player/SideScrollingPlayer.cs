@@ -3,25 +3,38 @@ using System.Collections;
 
 public class SideScrollingPlayer : Player {
 
-    public float speed = 5.0f;
+    public float speed = 3.0f;
     private bool hasControl = true;
+	private Rigidbody2D rb;
+	private bool inVent = false;
 
 	// Use this for initialization
 	new void Start () {
         base.Start();
+		rb = this.GetComponent<Rigidbody2D>();
+		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
+
 	}
 	
 	// Update is called once per frame
 	new void Update () {
-        if (hasControl)
-        {
-            float jump_speed = 0f;
-            if (Input.GetAxis("Vertical") > 0)
-            {
-                jump_speed = 0.5f;
-            }
-            rb.velocity = new Vector2(Input.GetAxis("Horizontal") * speed, rb.velocity.y + jump_speed);
-        }
+		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
+		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
+		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
+		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
+		if (hasControl && grounded)
+		{
+			float jump_speed = 0f;
+			if (Input.GetKeyDown (KeyCode.Space)) {
+				jump_speed = 5f + (0.1f * rb.velocity.x);
+				rb.velocity = new Vector2 (rb.velocity.x, jump_speed);
+			} else if(Input.GetKey(KeyCode.D) && rb.velocity.x < speed) {
+				rb.velocity = new Vector2 (rb.velocity.x + 1, rb.velocity.y);
+			} else if(Input.GetKey(KeyCode.A) && rb.velocity.x > -speed) {
+				rb.velocity = new Vector2 (rb.velocity.x - 1, rb.velocity.y);
+			}
+		}
+
 	}
 
     // Walk between doors
@@ -82,11 +95,74 @@ public class SideScrollingPlayer : Player {
         hasControl = true;
     }
 
-    public void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.GetComponent<Door>() != null)
-        {
-            WalkBetweenRooms(other.GetComponent<Door>());
-        }
-    }
+	public void EnterVent(Vent vent)
+	{
+		if (hasControl)
+		{
+			RoomManager rm = FindObjectOfType<RoomManager>();
+			Room curRoom = rm.currentRoom;
+			foreach (RoomObject r in curRoom.roomObjects) 
+			{
+				if (r.gameObject.GetComponentInChildren<SpriteRenderer> () != null && r.gameObject.GetComponent<Vent>() == null)
+				{
+					r.gameObject.GetComponentInChildren<SpriteRenderer> ().color = new Color (.1f, .1f, .1f, 1f);
+				}
+				else if(r.gameObject.GetComponent<SpriteRenderer> () != null && r.gameObject.GetComponent<Vent>() == null)
+				{
+					r.gameObject.GetComponent<SpriteRenderer> ().color = new Color (1f, 1f, 1f, 1f);
+				}
+			}
+
+			//this.gameObject.GetComponent<SpriteRenderer> ().color = new Color (1f, 1f, 1f, .5f);
+			this.gameObject.GetComponent<Rigidbody2D> ().velocity = Vector3.zero;
+			this.gameObject.transform.position = vent.gameObject.transform.position;
+			this.gameObject.layer = LayerMask.NameToLayer ("VentLayer");
+		}
+	}
+
+	public void ExitVent(Vent vent)
+	{
+		if (hasControl)
+		{
+			RoomManager rm = FindObjectOfType<RoomManager>();
+			Room curRoom = rm.currentRoom;
+			foreach (RoomObject r in curRoom.roomObjects) 
+			{
+				if (r.gameObject.GetComponentInChildren<SpriteRenderer> () != null && r.gameObject.GetComponent<Vent>() == null)
+				{
+					r.gameObject.GetComponentInChildren<SpriteRenderer> ().color = new Color (1f, 1f, 1f, 1f);
+				}
+				else if(r.gameObject.GetComponent<SpriteRenderer> () != null && r.gameObject.GetComponent<Vent>() == null)
+				{
+					r.gameObject.GetComponent<SpriteRenderer> ().color = new Color (1f, 1f, 1f, 1f);
+				}
+			}
+
+			this.gameObject.GetComponent<Rigidbody2D> ().velocity = Vector3.zero;
+			this.gameObject.transform.position = vent.gameObject.transform.position;
+			this.gameObject.layer = LayerMask.NameToLayer ("Default");
+		}
+	}
+
+	public void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.GetComponent<Door> () != null)
+		{
+			WalkBetweenRooms (other.GetComponent<Door> ());
+		} 
+		else if (other.GetComponent<Vent> () != null) 
+		{
+			if (inVent) 
+			{
+				inVent = false;
+				ExitVent (other.GetComponent<Vent> ());
+			}
+			else
+			{
+				inVent = true;
+				EnterVent (other.GetComponent<Vent> ());
+			}
+		}
+	}
+
 }
