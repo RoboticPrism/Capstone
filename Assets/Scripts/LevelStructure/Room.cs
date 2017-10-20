@@ -52,6 +52,13 @@ public class Room : MonoBehaviour {
             {
                 roomObjects.Add(child.GetComponent<RoomObject>());
             }
+			foreach (Transform child2 in child.GetComponentInChildren<Transform>()) 
+			{
+				if (child2.GetComponent<RoomObject>() != null)
+				{
+					roomObjects.Add(child2.GetComponent<RoomObject>());
+				}
+			}
 		}
 	}
 	
