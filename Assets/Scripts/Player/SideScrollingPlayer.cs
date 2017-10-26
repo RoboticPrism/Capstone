@@ -7,11 +7,16 @@ public class SideScrollingPlayer : Player {
     private bool hasControl = true;
 	private Rigidbody2D rb;
 	private bool inVent = false;
-
+	private bool dialogueAvail = false;
+	private GameObject activeDialoguer;
+	private GameObject dialoguePanel;
+	private DialogueControl dialogueControl;
 	// Use this for initialization
 	new void Start () {
         base.Start();
 		rb = this.GetComponent<Rigidbody2D>();
+		dialoguePanel = GameObject.Find ("DialoguePanel");
+		dialogueControl = dialoguePanel.gameObject.GetComponent<DialogueControl> ();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
 
 	}
@@ -28,10 +33,14 @@ public class SideScrollingPlayer : Player {
 			if (Input.GetKeyDown (KeyCode.Space)) {
 				jump_speed = 5f + (0.1f * rb.velocity.x);
 				rb.velocity = new Vector2 (rb.velocity.x, jump_speed);
-			} else if(Input.GetKey(KeyCode.D) && rb.velocity.x < speed) {
+			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed) {
 				rb.velocity = new Vector2 (rb.velocity.x + 1, rb.velocity.y);
-			} else if(Input.GetKey(KeyCode.A) && rb.velocity.x > -speed) {
+			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed) {
 				rb.velocity = new Vector2 (rb.velocity.x - 1, rb.velocity.y);
+			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
+				hasControl = false;
+				rb.velocity = new Vector2 (0, 0);
+				activeDialoguer.GetComponent<Dialogueable> ().BeginDialogue ();
 			}
 		}
 
@@ -69,9 +78,8 @@ public class SideScrollingPlayer : Player {
         newRoom.SetLimits();
 
         // Set the position to move towards (Note that we use the player's z location)
-        Vector3 goToPosition = new Vector3(door.GetDestinationDoor().GetMyDestination().position.x,
-                                           door.GetDestinationDoor().GetMyDestination().position.y,
-                                           this.gameObject.transform.position.z); 
+        Vector3 goToPosition = new Vector3(door.GetDestinationDoor().GetMyDestination().position.x, 
+			this.gameObject.transform.position.y, this.gameObject.transform.position.z); 
 
         // Move player to new room
         while (Vector3.Distance(this.gameObject.transform.position, goToPosition) > 0.01f)
@@ -82,6 +90,7 @@ public class SideScrollingPlayer : Player {
             yield return null;
         }
 
+		rb.velocity = new Vector2 (0, 0);
         // Wait half a second for dramatic flair
         yield return new WaitForSeconds(0.5f);
 
@@ -146,7 +155,13 @@ public class SideScrollingPlayer : Player {
 
 	public void OnTriggerEnter2D(Collider2D other)
 	{
-		if (other.GetComponent<Door> () != null)
+		if (other.GetComponent<Dialogueable> () != null)
+		{
+			dialogueAvail = true;
+			dialoguePanel.SetActive (true);
+			activeDialoguer = other.gameObject;
+		}
+		else if (other.GetComponent<Door> () != null)
 		{
 			WalkBetweenRooms (other.GetComponent<Door> ());
 		} 
@@ -162,6 +177,14 @@ public class SideScrollingPlayer : Player {
 				inVent = true;
 				EnterVent (other.GetComponent<Vent> ());
 			}
+		}
+	}
+
+	public void OnTriggerExit2D(Collider2D other)
+	{
+		if (other.GetComponent<Dialogueable> () != null) {
+			dialogueAvail = false;
+			dialoguePanel.SetActive (false);
 		}
 	}
 
