@@ -5,7 +5,6 @@ public class SideScrollingPlayer : Player {
 
     public float speed = 3.0f;
     private bool hasControl = true;
-	private Rigidbody2D rb;
 	private bool inVent = false;
 
 	// Use this for initialization
