@@ -6,13 +6,14 @@ public class SideScrollingPlayer : Player {
     public float speed = 3.0f;
     private bool hasControl = true;
 	private bool inVent = false;
+    private PickupUIBar pickupUIBar;
 
 	// Use this for initialization
 	new void Start () {
         base.Start();
 		rb = this.GetComponent<Rigidbody2D>();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
-
+        pickupUIBar = FindObjectOfType<PickupUIBar>();
 	}
 	
 	// Update is called once per frame
@@ -162,6 +163,11 @@ public class SideScrollingPlayer : Player {
 				EnterVent (other.GetComponent<Vent> ());
 			}
 		}
+        else if (other.GetComponent<PickupItem>())
+        {
+            pickupUIBar.AddItem(other.GetComponent<PickupItem>());
+            Destroy(other.gameObject);
+        }
 	}
 
 }
