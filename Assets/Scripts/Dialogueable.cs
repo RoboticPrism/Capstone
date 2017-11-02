@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class Dialogueable : MonoBehaviour {
 
-	public Dialogue myDialogue;
-
+	public string[] myDialogueFrames;
+	private TextMesh myText;
+	private bool inDialogue = false;
 	// Use this for initialization
 	void Start () {
-		
+		myText = this.gameObject.transform.Find ("MyDialogue").gameObject.GetComponent<TextMesh>();
 	}
 	
 	// Update is called once per frame
@@ -16,8 +17,31 @@ public class Dialogueable : MonoBehaviour {
 		
 	}
 
-	public void BeginDialogue()
+	public void FToInteract(bool set){
+		if (!set) {
+			myText.text = "";
+		} else if(!inDialogue){
+			myText.text = "Press 'F'";
+		}
+	}
+
+	public void BeginDialogue(){
+		if (!inDialogue) {
+			StartCoroutine (Dialogue ());
+		}
+	}
+
+	IEnumerator Dialogue()
 	{
-		myDialogue.Begin ();
+		inDialogue = true;
+		for(int i = 0; i <= myDialogueFrames.Length; i++){
+			if (i == myDialogueFrames.Length) {
+				myText.text = "";
+				inDialogue = false;
+			} else {
+				myText.text = myDialogueFrames [i];
+				yield return new WaitForSeconds (2f);
+			}
+		}
 	}
 }

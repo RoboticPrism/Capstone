@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class SideScrollingPlayer : Player {
 
@@ -8,15 +9,11 @@ public class SideScrollingPlayer : Player {
 	private Rigidbody2D rb;
 	private bool inVent = false;
 	private bool dialogueAvail = false;
-	private GameObject activeDialoguer;
-	private GameObject dialoguePanel;
-	private DialogueControl dialogueControl;
+	private Dialogueable activeDialogue;
 	// Use this for initialization
 	new void Start () {
         base.Start();
 		rb = this.GetComponent<Rigidbody2D>();
-		dialoguePanel = GameObject.Find ("DialoguePanel");
-		dialogueControl = dialoguePanel.gameObject.GetComponent<DialogueControl> ();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
 
 	}
@@ -38,9 +35,8 @@ public class SideScrollingPlayer : Player {
 			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed) {
 				rb.velocity = new Vector2 (rb.velocity.x - 1, rb.velocity.y);
 			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
-				hasControl = false;
-				rb.velocity = new Vector2 (0, 0);
-				activeDialoguer.GetComponent<Dialogueable> ().BeginDialogue ();
+				dialogueAvail = false;
+				activeDialogue.BeginDialogue();
 			}
 		}
 
@@ -158,8 +154,8 @@ public class SideScrollingPlayer : Player {
 		if (other.GetComponent<Dialogueable> () != null)
 		{
 			dialogueAvail = true;
-			dialoguePanel.SetActive (true);
-			activeDialoguer = other.gameObject;
+			activeDialogue = other.gameObject.GetComponent<Dialogueable>();
+			activeDialogue.FToInteract (true);
 		}
 		else if (other.GetComponent<Door> () != null)
 		{
@@ -184,7 +180,7 @@ public class SideScrollingPlayer : Player {
 	{
 		if (other.GetComponent<Dialogueable> () != null) {
 			dialogueAvail = false;
-			dialoguePanel.SetActive (false);
+			activeDialogue.FToInteract (false);
 		}
 	}
 
