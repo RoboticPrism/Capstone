@@ -10,13 +10,15 @@ public class SideScrollingPlayer : Player {
 	private bool inVent = false;
 	private bool dialogueAvail = false;
 	private Dialogueable activeDialogue;
-	// Use this for initialization
-	new void Start () {
+    private PickupUIBar pickupUIBar;
+
+    // Use this for initialization
+    new void Start () {
         base.Start();
 		rb = this.GetComponent<Rigidbody2D>();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
-
-	}
+        pickupUIBar = FindObjectOfType<PickupUIBar>();
+    }
 	
 	// Update is called once per frame
 	new void Update () {
@@ -160,8 +162,13 @@ public class SideScrollingPlayer : Player {
 		else if (other.GetComponent<Door> () != null)
 		{
 			WalkBetweenRooms (other.GetComponent<Door> ());
-		} 
-		else if (other.GetComponent<Vent> () != null) 
+		}
+        else if (other.GetComponent<PickupItem>())
+        {
+            pickupUIBar.AddItem(other.GetComponent<PickupItem>());
+            Destroy(other.gameObject);
+        }
+        else if (other.GetComponent<Vent> () != null) 
 		{
 			if (inVent) 
 			{
