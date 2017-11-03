@@ -6,7 +6,6 @@ public class SideScrollingPlayer : Player {
 
     public float speed = 3.0f;
     private bool hasControl = true;
-	private Rigidbody2D rb;
 	private bool inVent = false;
 	private bool dialogueAvail = false;
 	private Dialogueable activeDialogue;
@@ -15,7 +14,6 @@ public class SideScrollingPlayer : Player {
     // Use this for initialization
     new void Start () {
         base.Start();
-		rb = this.GetComponent<Rigidbody2D>();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
         pickupUIBar = FindObjectOfType<PickupUIBar>();
     }
