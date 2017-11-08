@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SideScrollingPlayer : Player {
 
@@ -10,12 +11,15 @@ public class SideScrollingPlayer : Player {
 	private bool dialogueAvail = false;
 	private Dialogueable activeDialogue;
     private PickupUIBar pickupUIBar;
+    private RoomManager roomManager;
 
     // Use this for initialization
     new void Start () {
         base.Start();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
         pickupUIBar = FindObjectOfType<PickupUIBar>();
+        roomManager = FindObjectOfType<RoomManager>();
+        blackout.gameObject.SetActive(true);
     }
 	
 	// Update is called once per frame
@@ -59,6 +63,7 @@ public class SideScrollingPlayer : Player {
     {
         // Remove player control
         hasControl = false;
+        roomManager.roomTransition = true;
         this.GetComponent<Rigidbody2D>().velocity = new Vector2(0.0f, 0.0f);
         
         // Assign new current room
@@ -98,6 +103,7 @@ public class SideScrollingPlayer : Player {
 
         // Reenable Control
         hasControl = true;
+        roomManager.roomTransition = false;
     }
 
 	public void EnterVent(Vent vent)
@@ -179,6 +185,10 @@ public class SideScrollingPlayer : Player {
 				EnterVent (other.GetComponent<Vent> ());
 			}
 		}
+        else if (other.GetComponent<Hunter>() != null && !inVent) {
+            StartCoroutine(blackout.FadeInBlack());
+            SceneManager.LoadSceneAsync("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
+        }
 	}
 
 	public void OnTriggerExit2D(Collider2D other)
