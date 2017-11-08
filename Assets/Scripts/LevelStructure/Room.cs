@@ -23,9 +23,12 @@ public class Room : MonoBehaviour {
 	public Vector2 roomSizeMin;
     public Vector2 roomSizeMax;
 
+    public RoomManager roomManager;
+
 	// Use this for initialization
 	void Awake ()
     {
+        roomManager = FindObjectOfType<RoomManager>();
         // Calulcate the min and max of this room using the combined colliders
         Collider2D[] colliders2D = GetComponentsInChildren<Collider2D>();
         Bounds colBounds = new Bounds(transform.position, Vector3.zero);
@@ -128,4 +131,8 @@ public class Room : MonoBehaviour {
 		}
 	}
 
+    public void SpawnHunter()
+    {
+        roomManager.SpawnHunter(this);
+    }
 }

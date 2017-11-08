@@ -20,6 +20,7 @@ public class Drone : MonoBehaviour {
 		if (suspicion >= maxSuspicion)
         {
             alerted = true;
+            SpawnHunter();
         }
 	}
 
@@ -47,5 +48,10 @@ public class Drone : MonoBehaviour {
     {
         yield return new WaitForSeconds(3);
         suspicion = 0;
+    }
+
+    public void SpawnHunter()
+    {
+        GetComponentInParent<Room>().SpawnHunter();
     }
 }
