@@ -10,6 +10,7 @@ public class SideScrollingPlayer : Player {
 	private bool inVent = false;
 	private bool dialogueAvail = false;
 	private Dialogueable activeDialogue;
+	public RoomManager roomMan;
 	// Use this for initialization
 	new void Start () {
         base.Start();
@@ -36,7 +37,9 @@ public class SideScrollingPlayer : Player {
 				rb.velocity = new Vector2 (rb.velocity.x - 1, rb.velocity.y);
 			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
 				dialogueAvail = false;
-				activeDialogue.BeginDialogue();
+				activeDialogue.BeginDialogue ();
+			} else if (Input.GetKey (KeyCode.Q)) {
+				roomMan.RevealSniffablesInCurRoom ();
 			}
 		}
 
