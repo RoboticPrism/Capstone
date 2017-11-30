@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Blackout : MonoBehaviour {
 
-    SpriteRenderer blackout;
+    SpriteRenderer sprite;
 
     // Use this for initialization
     void Start () {
-        blackout = GetComponent<SpriteRenderer>();	
+        sprite = GetComponent<SpriteRenderer>();	
 	}
 	
 	// Update is called once per frame
@@ -19,9 +19,9 @@ public class Blackout : MonoBehaviour {
     // Drop the blackout object over the camera
     public IEnumerator FadeInBlack()
     {
-        while (blackout.color.a < 1.0f)
+        while (sprite.color.a < 1.0f)
         {
-            blackout.color = new Color(0.0f, 0.0f, 0.0f, blackout.color.a + 0.05f);
+            sprite.color = new Color(0.0f, 0.0f, 0.0f, sprite.color.a + 0.05f);
             yield return null;
         }
     }
@@ -29,9 +29,14 @@ public class Blackout : MonoBehaviour {
     // Pull the blackout object off the camera
     public IEnumerator FadeOutBlack()
     {
-        while (blackout.color.a > 0.0f)
+        // This is here because this could run before sprite is set, so just wait until its there
+        while (sprite == null)
         {
-            blackout.color = new Color(0.0f, 0.0f, 0.0f, blackout.color.a - 0.01f);
+            yield return null;
+        }
+        while (sprite.color.a > 0.0f)
+        {
+            sprite.color = new Color(0.0f, 0.0f, 0.0f, sprite.color.a - 0.01f);
             yield return null;
         }
     }

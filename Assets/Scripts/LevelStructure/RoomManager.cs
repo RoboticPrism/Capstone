@@ -16,11 +16,16 @@ public class RoomManager : MonoBehaviour {
 
     // The rooms adjacent to the current room that should be loaded
     public List<Room> adjacentRooms;
-
 	public Camera mainCam;
 
 	// Use this for initialization
-	void Start ()
+    public bool roomTransition = false;
+
+    public Hunter hunterPrefab;
+    public Hunter instantiatedHunter;
+
+    // Use this for initialization
+    void Start ()
     {
 		Room[] getRooms = Object.FindObjectsOfType<Room> ();
 
@@ -168,4 +173,13 @@ public class RoomManager : MonoBehaviour {
             }
         }
     } 
+
+    public void SpawnHunter(Room currentRoom)
+    {
+        if (instantiatedHunter == null)
+        {
+            instantiatedHunter = Instantiate(hunterPrefab);
+            instantiatedHunter.transform.position = new Vector3(currentRoom.roomSizeMax.x, currentRoom.roomSizeMax.y, 0);
+        }
+    }
 }

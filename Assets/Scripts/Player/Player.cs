@@ -6,7 +6,7 @@ public class Player : MonoBehaviour {
 
 
     public Blackout blackout;
-    public Rigidbody2D rb;
+    protected Rigidbody2D rb;
 
     // Use this for initialization
     protected void Start () {
