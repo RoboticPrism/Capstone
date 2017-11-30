@@ -23,7 +23,7 @@ public class WalkingDrone : Drone {
         base.FixedUpdate();
         if (walk)
         {
-            rb.velocity = new Vector2(-2 * transform.localScale.x, 0);
+            rb.velocity = new Vector2(2 * transform.localScale.x, 0);
         } else
         {
             rb.velocity = new Vector2(0, 0);

@@ -47,7 +47,13 @@ public class SideScrollingPlayer : Player {
 				activeDialogue.BeginDialogue();
 			}
 		}
-
+        if (rb.velocity.x > 0)
+        {
+            this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
+        } else if (rb.velocity.x < 0)
+        {
+            this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
+        }
 	}
 
     // Walk between doors
