@@ -10,6 +10,7 @@ public class SideScrollingPlayer : Player {
 	private bool inVent = false;
 	private bool dialogueAvail = false;
 	private Dialogueable activeDialogue;
+	public RoomManager roomMan;
     private PickupUIBar pickupUIBar;
     private RoomManager roomManager;
 
@@ -40,6 +41,9 @@ public class SideScrollingPlayer : Player {
 				rb.velocity = new Vector2 (rb.velocity.x - 1, rb.velocity.y);
 			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
 				dialogueAvail = false;
+				activeDialogue.BeginDialogue ();
+			} else if (Input.GetKey (KeyCode.Q)) {
+				roomMan.RevealSniffablesInCurRoom ();
 				activeDialogue.BeginDialogue();
 			}
 		}
@@ -198,5 +202,4 @@ public class SideScrollingPlayer : Player {
 			activeDialogue.FToInteract (false);
 		}
 	}
-
 }

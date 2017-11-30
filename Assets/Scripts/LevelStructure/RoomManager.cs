@@ -16,7 +16,9 @@ public class RoomManager : MonoBehaviour {
 
     // The rooms adjacent to the current room that should be loaded
     public List<Room> adjacentRooms;
+	public Camera mainCam;
 
+	// Use this for initialization
     public bool roomTransition = false;
 
     public Hunter hunterPrefab;
@@ -74,7 +76,7 @@ public class RoomManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-	
+		
 	}
 
     // Sets a new current room, prepares adjacent room
@@ -134,6 +136,13 @@ public class RoomManager : MonoBehaviour {
             // Set state to prepared
             r.SetState(Room.RoomState.PREPARED);
         }
+	}
+
+	public void RevealSniffablesInCurRoom(){
+		List<Sniffable> sniffables = currentRoom.GetSniffables ();
+		foreach (Sniffable s in sniffables) {
+			s.Sniffed ();
+		}
 	}
 
     // Use after setting a new current room to clean up old rooms

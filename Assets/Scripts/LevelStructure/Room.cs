@@ -19,6 +19,8 @@ public class Room : MonoBehaviour {
     // Respawning objects in this room
     public List<RoomObject> roomObjects;
 
+	public List<Sniffable> sniffables;
+
 	// Variables for camera locking
 	public Vector2 roomSizeMin;
     public Vector2 roomSizeMax;
@@ -57,6 +59,9 @@ public class Room : MonoBehaviour {
             }
 			foreach (Transform child2 in child.GetComponentInChildren<Transform>()) 
 			{
+				if (child2.GetComponent<Sniffable> () != null) {
+					sniffables.Add(child2.GetComponent<Sniffable>());
+				}
 				if (child2.GetComponent<RoomObject>() != null)
 				{
 					roomObjects.Add(child2.GetComponent<RoomObject>());
@@ -129,6 +134,10 @@ public class Room : MonoBehaviour {
 		if (cc) {
 			cc.SetNewLimits (roomSizeMin, roomSizeMax);
 		}
+	}
+
+	public List<Sniffable> GetSniffables(){
+		return sniffables;
 	}
 
     public void SpawnHunter()
