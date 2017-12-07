@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System.Collections.Generic;
 
 public class CameraControl : MonoBehaviour {
 
@@ -26,6 +26,9 @@ public class CameraControl : MonoBehaviour {
 
     private Camera camera;
 
+	private bool revealing = false;
+	private bool waitToCenter = false;
+	private List<Vector3> revPoints;
 
     void Start () {
         // Set the camera for calculation later
@@ -41,78 +44,88 @@ public class CameraControl : MonoBehaviour {
 
 	void CameraUpdate ()
 	{
-        // Calculate the ideal camera size for this room
-        float roomWidth = roomSizeMax.x - roomSizeMin.x;
-        float roomHeight = roomSizeMax.y - roomSizeMin.y;
+		
+		if (!revealing) {
+			// Calculate the ideal camera size for this room
+			float roomWidth = roomSizeMax.x - roomSizeMin.x;
+			float roomHeight = roomSizeMax.y - roomSizeMin.y;
+        	
+			// Ensure camera doesn't get bigger or smaller than its min and max bounds
+			if (roomWidth > cameraMaxWidth) {
+				roomWidth = cameraMaxWidth;
+			} else if (roomWidth < cameraMinWidth) {
+				roomWidth = cameraMinWidth;
+			}
+			if (roomHeight > cameraMaxHeight) {
+				roomHeight = cameraMaxHeight;
+			} else if (roomHeight < cameraMinHeight) {
+				roomHeight = cameraMinHeight;
+			}
+
+			// If aspect ratio on ideal room size doesn't match the current aspect ratio, change width or height to make it match
+			float aspect = camera.aspect;
         
-        // Ensure camera doesn't get bigger or smaller than its min and max bounds
-        if (roomWidth > cameraMaxWidth)
-        {
-            roomWidth = cameraMaxWidth;
-        }
-        else if (roomWidth < cameraMinWidth)
-        {
-            roomWidth = cameraMinWidth;
-        }
-        if (roomHeight > cameraMaxHeight)
-        {
-            roomHeight = cameraMaxHeight;
-        }
-        else if (roomHeight < cameraMinHeight)
-        {
-            roomHeight = cameraMinHeight;
-        }
+			// If width is too big, lower it to be in line with aspect ration
+			if (roomWidth / roomHeight > aspect) {
+				roomWidth = roomHeight * aspect;
+			}
 
-        // If aspect ratio on ideal room size doesn't match the current aspect ratio, change width or height to make it match
-        float aspect = camera.aspect;
+        	// If height is too big, lower it to be in line with aspect ratio
+        	else if (roomWidth / roomHeight < aspect) {
+				roomHeight = roomWidth / aspect;
+			}
+
+			// Set camera size gradually
         
-        // If width is too big, lower it to be in line with aspect ration
-        if (roomWidth/roomHeight > aspect)
-        {
-            roomWidth = roomHeight * aspect;
-        }
-
-        // If height is too big, lower it to be in line with aspect ratio
-        else if (roomWidth / roomHeight < aspect)
-        {
-            roomHeight = roomWidth / aspect;
-        }
-
-        // Set camera size gradually
+			// If camera needs to be bigger, boost it up
+			if (camera.orthographicSize < roomHeight / 2.0f) {
+				camera.orthographicSize += cameraScaleSpeed;
+			}
+        	// If camera needs to be smaller, scale it down
+        	else if (camera.orthographicSize > roomHeight / 2.0f) {
+				camera.orthographicSize -= cameraScaleSpeed;
+			}
+			// If the camera is close enough to the right size, jump it there
+			if (Mathf.Abs (camera.orthographicSize - (roomHeight / 2.0f)) < cameraScaleSpeed) {
+				camera.orthographicSize = roomHeight / 2.0f;
+			}  
         
-        // If camera needs to be bigger, boost it up
-        if (camera.orthographicSize < roomHeight / 2.0f)
-        {
-            camera.orthographicSize += cameraScaleSpeed;
-        }
-        // If camera needs to be smaller, scale it down
-        else if (camera.orthographicSize > roomHeight / 2.0f)
-        {
-            camera.orthographicSize -= cameraScaleSpeed;
-        }
-        // If the camera is close enough to the right size, jump it there
-        if (Mathf.Abs(camera.orthographicSize - (roomHeight / 2.0f)) < cameraScaleSpeed)
-        {
-            camera.orthographicSize = roomHeight / 2.0f;
-        }  
-        
-        float cameraHeight = camera.orthographicSize * 2.0f;
-        float cameraWidth = cameraHeight * camera.aspect;
+			float cameraHeight = camera.orthographicSize * 2.0f;
+			float cameraWidth = cameraHeight * camera.aspect;
 
-        // Calculate the camera position in this room
-        Vector3 playerPosition = player.transform.position;
-		Vector3 cameraPosition = new Vector3 (playerPosition.x, playerPosition.y, transform.position.z);
+			// Calculate the camera position in this room
+			Vector3 playerPosition = player.transform.position;
+			Vector3 cameraPosition = new Vector3 (playerPosition.x, playerPosition.y, transform.position.z);
 
-		// Here we clamp the desired position into the area declared in the limit variables.
-		if (limitCamXMovement) {
-            cameraPosition.x = Mathf.Clamp(cameraPosition.x, roomSizeMin.x + cameraWidth / 2.0f, roomSizeMax.x - cameraWidth / 2.0f);
-        }
-        if (limitCamYMovement) {
-            cameraPosition.y = Mathf.Clamp(cameraPosition.y, roomSizeMin.y + cameraHeight / 2.0f, roomSizeMax.y - cameraHeight / 2.0f);
-        }
+			// Here we clamp the desired position into the area declared in the limit variables.
+			if (limitCamXMovement) {
+				cameraPosition.x = Mathf.Clamp (cameraPosition.x, roomSizeMin.x + cameraWidth / 2.0f, roomSizeMax.x - cameraWidth / 2.0f);
+			}
+			if (limitCamYMovement) {
+				cameraPosition.y = Mathf.Clamp (cameraPosition.y, roomSizeMin.y + cameraHeight / 2.0f, roomSizeMax.y - cameraHeight / 2.0f);
+			}
 
-		// and now we're updating the camera position using what came of all the calculations above.
-		this.transform.position = Vector3.MoveTowards(transform.position, cameraPosition, cameraMoveSpeed);
+			// and now we're updating the camera position using what came of all the calculations above.
+			if (waitToCenter && this.transform.position == cameraPosition) {
+				waitToCenter = false;
+				SideScrollingPlayer playerCont = player.GetComponent<SideScrollingPlayer> ();
+				if (playerCont) {
+					playerCont.RevealDone ();
+				}
+			}
+			this.transform.position = Vector3.MoveTowards (transform.position, cameraPosition, cameraMoveSpeed);
+		} else {
+			if (revPoints.Count != 0) {
+				if (this.transform.position.x == revPoints [0].x && this.transform.position.y == revPoints[0].y) {
+					revPoints.Remove (revPoints [0]);
+				} else {
+					this.transform.position = Vector3.MoveTowards (this.transform.position, new Vector3 (revPoints [0].x, revPoints [0].y, this.transform.position.z), cameraMoveSpeed);
+				}
+			} else {
+				revealing = false;
+				waitToCenter = true;
+			}
+		}
 	}
 
 
@@ -128,6 +141,11 @@ public class CameraControl : MonoBehaviour {
 		limitCamYMovement = true;
 	}
 
+	public void PanToSniffables(List<Vector3> points){
+		revealing = true;
+		revPoints = points;
+	}
+		
     // Turn off horizontal camera limits
 	public void DeactivateXLimits()
 	{

@@ -73,24 +73,24 @@ public class Sniffable : MonoBehaviour {
 		}
 	}
 
-	void OnGUI(){
-		if (sniffed && (!onscreen)) {
-			int halfSW = Screen.width / 2;
-			int halfSH = Screen.height / 2;
-
-			Vector3 dir = Vector3.Normalize(me.transform.position - mainCam.transform.position) * -1f;
-
-			Vector2 indPos = new Vector2 (((halfSW) * dir.x) + halfSW, ((halfSH) * dir.y) + halfSH);
-
-			Vector3 theDirection = Vector3.Normalize(me.transform.position - mainCam.ScreenToWorldPoint(new Vector3(indPos.x, indPos.y)));
-
-			float angle = Mathf.Atan2(theDirection.x, theDirection.y) * Mathf.Rad2Deg;
-
-			GUIUtility.RotateAroundPivot(angle, indPos);
-			GUI.Box (new Rect (indPos.x, indPos.y, 25, 25), myIndicator, stylish);
-			GUIUtility.RotateAroundPivot(0, indPos);
-		}
-	}
+//	void OnGUI(){
+//		if (sniffed && (!onscreen)) {
+//			int halfSW = Screen.width / 2;
+//			int halfSH = Screen.height / 2;
+//
+//			Vector3 dir = Vector3.Normalize(me.transform.position - mainCam.transform.position) * -1f;
+//
+//			Vector2 indPos = new Vector2 (((halfSW) * dir.x) + halfSW, ((halfSH) * dir.y) + halfSH);
+//
+//			Vector3 theDirection = Vector3.Normalize(me.transform.position - mainCam.ScreenToWorldPoint(new Vector3(indPos.x, indPos.y)));
+//
+//			float angle = Mathf.Atan2(theDirection.x, theDirection.y) * Mathf.Rad2Deg;
+//
+//			GUIUtility.RotateAroundPivot(angle, indPos);
+//			GUI.Box (new Rect (indPos.x, indPos.y, 25, 25), myIndicator, stylish);
+//			GUIUtility.RotateAroundPivot(0, indPos);
+//		}
+//	}
 
 	void OnBecameVisible(){
 		onscreen = true;
