@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +10,7 @@ public class SideScrollingPlayer : Player {
     private bool hasControl = true;
 	private bool inVent = false;
 	private bool dialogueAvail = false;
+    private int foodCollected = 0;
 	private Dialogueable activeDialogue;
 	public RoomManager roomMan;
     private PickupUIBar pickupUIBar;
@@ -55,6 +57,11 @@ public class SideScrollingPlayer : Player {
             this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
         }
 	}
+
+    public int GetFoodFound()
+    {
+        return foodCollected;
+    }
 
     // Walk between doors
     public void WalkBetweenRooms(Door door)
@@ -177,8 +184,12 @@ public class SideScrollingPlayer : Player {
 		{
 			WalkBetweenRooms (other.GetComponent<Door> ());
 		}
-        else if (other.GetComponent<PickupItem>())
+        else if (other.GetComponent<PickupItem>() != null)
         {
+            if (other.GetComponent<Food>())
+            {
+                foodCollected += 1;
+            }
             pickupUIBar.AddItem(other.GetComponent<PickupItem>());
             Destroy(other.gameObject);
         }
@@ -196,6 +207,7 @@ public class SideScrollingPlayer : Player {
 			}
 		}
         else if (other.GetComponent<Hunter>() != null && !inVent) {
+            foodCollected = 0;
             StartCoroutine(blackout.FadeInBlack());
             SceneManager.LoadSceneAsync("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
         }

@@ -117,18 +117,8 @@ public class RoomManager : MonoBehaviour {
 		// Prepare all adjacent Rooms r, to the given room
 		foreach (Room r in adjacentRooms)
 		{
-            // Don't prepare, just hide the room
-            if (r.GetState() == Room.RoomState.ACTIVE)
-            {
-                r.ClearRoom();
-            }
-            // Do nothing
-            else if (r.GetState() == Room.RoomState.PREPARED)
-            {
-
-            }
             // Prepare
-            else if (r.GetState() == Room.RoomState.DEACTIVE)
+            if (r.GetState() == Room.RoomState.DEACTIVE)
 			{
 				r.PrepareRoom();
 			}
