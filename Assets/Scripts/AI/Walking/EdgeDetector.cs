@@ -20,7 +20,6 @@ public class EdgeDetector : MonoBehaviour {
     {
         if (col.GetComponent<SideScrollingPlayer>() == null)
         {
-            Debug.Log(col.gameObject.name);
             drone.HitEdge();
         }
     }
