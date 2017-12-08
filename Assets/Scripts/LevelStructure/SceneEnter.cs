@@ -12,6 +12,11 @@ public class SceneEnter : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        if (StateSaver.gameState.areasEntered.Contains(sceneToLoad))
+        {
+            Destroy(this.gameObject);
+        }
+
         areaInfo = FindObjectOfType<AreaInfo>();
         areaInfo.gameObject.SetActive(false);
 	}

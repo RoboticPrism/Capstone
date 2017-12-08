@@ -207,6 +207,7 @@ public class SideScrollingPlayer : Player {
 			}
 		}
         else if (other.GetComponent<Hunter>() != null && !inVent) {
+            foodCollected = 0;
             StartCoroutine(blackout.FadeInBlack());
             SceneManager.LoadSceneAsync("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
         }
