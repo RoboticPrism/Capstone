@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class SideScrollingPlayer : Player {
 
     public float speed = 3.0f;
+    public float jump = 5.0f;
     private bool hasControl = true;
 	private bool inVent = false;
 	private bool dialogueAvail = false;
@@ -35,7 +36,7 @@ public class SideScrollingPlayer : Player {
 		{
 			float jump_speed = 0f;
 			if (Input.GetKeyDown (KeyCode.Space)) {
-				jump_speed = 5f + (0.1f * rb.velocity.x);
+				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = new Vector2 (rb.velocity.x, jump_speed);
 			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed) {
 				rb.velocity = new Vector2 (rb.velocity.x + 1, rb.velocity.y);
