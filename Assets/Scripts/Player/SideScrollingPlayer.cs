@@ -46,7 +46,7 @@ public class SideScrollingPlayer : Player {
 				hasControl = false;
 				roomMan.RevealSniffablesInCurRoom ();
 			} else if (Input.GetKey (KeyCode.E)) {
-				Bark ();
+				//Bark ();
 			}
 		}
 
