@@ -22,11 +22,11 @@ public class WalkingDrone : Drone {
     new void FixedUpdate ()
     {
         base.FixedUpdate();
-
+		reacting = false;
 		if (reacting) {
 			this.gameObject.transform.position = Vector2.MoveTowards (this.gameObject.transform.position, curTarget, -2 * transform.localScale.x);
 		} else if (walk) {
-            rb.velocity = new Vector2(-2 * transform.localScale.x, 0);
+            rb.velocity = new Vector2(2 * transform.localScale.x, 0);
         } else {
             rb.velocity = new Vector2(0, 0);
         }

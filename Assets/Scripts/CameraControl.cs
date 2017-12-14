@@ -25,7 +25,7 @@ public class CameraControl : MonoBehaviour {
     public float cameraScaleSpeed = 0.02f;
 
     private Camera camera;
-
+	private bool pause = false;
 	private bool revealing = false;
 	private bool waitToCenter = false;
 	private List<Vector3> revPoints;
@@ -44,8 +44,10 @@ public class CameraControl : MonoBehaviour {
 
 	void CameraUpdate ()
 	{
-		
-		if (!revealing) {
+		if (pause) {
+			pause = false;
+		}
+		else if (!revealing) {
 			// Calculate the ideal camera size for this room
 			float roomWidth = roomSizeMax.x - roomSizeMin.x;
 			float roomHeight = roomSizeMax.y - roomSizeMin.y;
@@ -118,6 +120,7 @@ public class CameraControl : MonoBehaviour {
 			if (revPoints.Count != 0) {
 				if (this.transform.position.x == revPoints [0].x && this.transform.position.y == revPoints[0].y) {
 					revPoints.Remove (revPoints [0]);
+					pause = true;
 				} else {
 					this.transform.position = Vector3.MoveTowards (this.transform.position, new Vector3 (revPoints [0].x, revPoints [0].y, this.transform.position.z), cameraMoveSpeed);
 				}
