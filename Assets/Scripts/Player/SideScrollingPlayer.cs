@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class SideScrollingPlayer : Player {
 
     public float speed = 3.0f;
+    public float jump = 5.0f;
     private bool hasControl = true;
 	private bool inVent = false;
 	private bool dialogueAvail = false;
+    private int foodCollected = 0;
 	private Dialogueable activeDialogue;
 	public RoomManager roomMan;
     private PickupUIBar pickupUIBar;
@@ -33,7 +36,7 @@ public class SideScrollingPlayer : Player {
 		{
 			float jump_speed = 0f;
 			if (Input.GetKeyDown (KeyCode.Space)) {
-				jump_speed = 5f + (0.1f * rb.velocity.x);
+				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = new Vector2 (rb.velocity.x, jump_speed);
 			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed) {
 				rb.velocity = new Vector2 (rb.velocity.x + 1, rb.velocity.y);
@@ -49,8 +52,19 @@ public class SideScrollingPlayer : Player {
 				//Bark ();
 			}
 		}
-
+        if (rb.velocity.x > 0)
+        {
+            this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
+        } else if (rb.velocity.x < 0)
+        {
+            this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
+        }
 	}
+
+    public int GetFoodFound()
+    {
+        return foodCollected;
+    }
 
     // Walk between doors
     public void WalkBetweenRooms(Door door)
@@ -187,8 +201,12 @@ public class SideScrollingPlayer : Player {
 		{
 			WalkBetweenRooms (other.GetComponent<Door> ());
 		}
-        else if (other.GetComponent<PickupItem>())
+        else if (other.GetComponent<PickupItem>() != null)
         {
+            if (other.GetComponent<Food>())
+            {
+                foodCollected += 1;
+            }
             pickupUIBar.AddItem(other.GetComponent<PickupItem>());
             Destroy(other.gameObject);
         }
@@ -206,6 +224,7 @@ public class SideScrollingPlayer : Player {
 			}
 		}
         else if (other.GetComponent<Hunter>() != null && !inVent) {
+            foodCollected = 0;
             StartCoroutine(blackout.FadeInBlack());
             SceneManager.LoadSceneAsync("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
         }

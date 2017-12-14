@@ -56,6 +56,7 @@ public class Room : MonoBehaviour {
             if (child.GetComponent<RoomObject>() != null)
             {
                 roomObjects.Add(child.GetComponent<RoomObject>());
+                child.GetComponent<RoomObject>().Prepare();
             }
 			foreach (Transform child2 in child.GetComponentInChildren<Transform>()) 
 			{

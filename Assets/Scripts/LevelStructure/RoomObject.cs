@@ -30,7 +30,7 @@ public class RoomObject : MonoBehaviour {
     {
         if (respawnObject)
         {
-            //instantiatedObject = (GameObject)Instantiate(objectPrefab, this.transform.position, this.transform.rotation, this.transform);
+            instantiatedObject = (GameObject)Instantiate(objectPrefab, this.transform.position, this.transform.rotation, this.transform);
         }
     }
 
