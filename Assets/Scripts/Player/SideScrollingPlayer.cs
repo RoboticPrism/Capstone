@@ -46,8 +46,10 @@ public class SideScrollingPlayer : Player {
 				dialogueAvail = false;
 				activeDialogue.BeginDialogue ();
 			} else if (Input.GetKey (KeyCode.Q)) {
+				hasControl = false;
 				roomMan.RevealSniffablesInCurRoom ();
-				activeDialogue.BeginDialogue();
+			} else if (Input.GetKey (KeyCode.E)) {
+				//Bark ();
 			}
 		}
         if (rb.velocity.x > 0)
@@ -74,7 +76,21 @@ public class SideScrollingPlayer : Player {
         }
     }
 
-    
+	public void Bark(){
+		Vector2 myPos = new Vector2 (this.gameObject.transform.position.x, this.gameObject.transform.position.y);
+		ContactFilter2D filter = new ContactFilter2D ();
+		LayerMask layermask = 1 << 10;
+		Debug.Log (LayerMask.LayerToName (layermask));
+		filter.SetLayerMask (layermask);
+		RaycastHit2D[] results = new RaycastHit2D[100];
+		int numEnemies = Physics2D.CircleCast (myPos, 10.0f, myPos, filter, results, 0.0f);
+		for (int i = 0; i < numEnemies; i++) {
+			WalkingDrone drone = results [i].transform.gameObject.GetComponent<WalkingDrone>();
+			if (drone != null) {
+				drone.ReactToBark (this.gameObject.transform.position);
+			}
+		}
+	}
 
     // Fades in the blackout object, waits a bit, then moves the player to the new room
     IEnumerator WalkBetweenRoomsCoroutine(Door door)
@@ -220,5 +236,9 @@ public class SideScrollingPlayer : Player {
 			dialogueAvail = false;
 			activeDialogue.FToInteract (false);
 		}
+	}
+
+	public void RevealDone(){
+		hasControl = true;
 	}
 }

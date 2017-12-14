@@ -130,8 +130,16 @@ public class RoomManager : MonoBehaviour {
 
 	public void RevealSniffablesInCurRoom(){
 		List<Sniffable> sniffables = currentRoom.GetSniffables ();
+		List<Vector3> points = new List<Vector3> ();
 		foreach (Sniffable s in sniffables) {
 			s.Sniffed ();
+			if (!s.onscreen) {
+				points.Add (s.gameObject.transform.position);
+			}
+		}
+		CameraControl camCont = mainCam.GetComponent<CameraControl> ();
+		if (camCont) {
+			camCont.PanToSniffables (points);
 		}
 	}
 
