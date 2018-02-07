@@ -16,6 +16,7 @@ public class SideScrollingPlayer : Player {
 	public RoomManager roomMan;
     private PickupUIBar pickupUIBar;
     private RoomManager roomManager;
+	private bool saveable = false;
 
     // Use this for initialization
     new void Start () {
@@ -23,7 +24,6 @@ public class SideScrollingPlayer : Player {
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
         pickupUIBar = FindObjectOfType<PickupUIBar>();
         roomManager = FindObjectOfType<RoomManager>();
-        blackout.gameObject.SetActive(true);
     }
 	
 	// Update is called once per frame
@@ -32,28 +32,54 @@ public class SideScrollingPlayer : Player {
 		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
 		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
 		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
-		if (hasControl && grounded)
-		{
+		if (hasControl && grounded) {
 			float jump_speed = 0f;
 			if (Input.GetKeyDown (KeyCode.Space)) {
 				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = new Vector2 (rb.velocity.x, jump_speed);
 			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed) {
-				rb.velocity = new Vector2 (rb.velocity.x + 1, rb.velocity.y);
+				rb.velocity = new Vector2 (speed, rb.velocity.y);
 			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed) {
-				rb.velocity = new Vector2 (rb.velocity.x - 1, rb.velocity.y);
+				rb.velocity = new Vector2 (-speed, rb.velocity.y);
+<<<<<<< HEAD
+<<<<<<< HEAD
+			} else if (dialogueAvail && Input.GetKeyUp (KeyCode.F)) {
+=======
+=======
+>>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
 			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
+>>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
 				dialogueAvail = false;
 				activeDialogue.BeginDialogue ();
-			} else if (Input.GetKey (KeyCode.Q)) {
+			} else if (Input.GetKeyUp (KeyCode.Q)) {
 				hasControl = false;
 				roomMan.RevealSniffablesInCurRoom ();
-			} else if (Input.GetKey (KeyCode.E)) {
-				//Bark ();
+			} else if (Input.GetKeyUp (KeyCode.E)) {
+				Bark ();
+			} else if (Input.GetKeyUp (KeyCode.X) && saveable) {
+				StateSaver.Save ();
+			}
+		} else if (hasControl && !grounded) {
+			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
+				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
+			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
+				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
+			}
+		} else if (hasControl && !grounded) {
+			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
+				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
+			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
+				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
+			}
+		} else if (hasControl && !grounded) {
+			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
+				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
+			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
+				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
 			}
 		}
-        if (rb.velocity.x > 0)
-        {
+
+        if (rb.velocity.x >= 0) {
             this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
         } else if (rb.velocity.x < 0)
         {
@@ -79,14 +105,15 @@ public class SideScrollingPlayer : Player {
 	public void Bark(){
 		Vector2 myPos = new Vector2 (this.gameObject.transform.position.x, this.gameObject.transform.position.y);
 		ContactFilter2D filter = new ContactFilter2D ();
-		LayerMask layermask = 1 << 10;
-		Debug.Log (LayerMask.LayerToName (layermask));
+		LayerMask layermask = 10;
+		//Debug.Log (LayerMask.LayerToName (layermask));
 		filter.SetLayerMask (layermask);
-		RaycastHit2D[] results = new RaycastHit2D[100];
-		int numEnemies = Physics2D.CircleCast (myPos, 10.0f, myPos, filter, results, 0.0f);
+		Collider2D[] results = Physics2D.OverlapCircleAll (myPos, 1000.0f);
+		int numEnemies = results.Length;
+		//print (numEnemies);
 		for (int i = 0; i < numEnemies; i++) {
-			WalkingDrone drone = results [i].transform.gameObject.GetComponent<WalkingDrone>();
-			if (drone != null) {
+			WalkingDrone drone = results [i].gameObject.GetComponent<WalkingDrone>();
+			if (drone != null){
 				drone.ReactToBark (this.gameObject.transform.position);
 			}
 		}
@@ -191,43 +218,34 @@ public class SideScrollingPlayer : Player {
 
 	public void OnTriggerEnter2D(Collider2D other)
 	{
-		if (other.GetComponent<Dialogueable> () != null)
-		{
+		if (other.GetComponent<Dialogueable> () != null) {
 			dialogueAvail = true;
-			activeDialogue = other.gameObject.GetComponent<Dialogueable>();
+			activeDialogue = other.gameObject.GetComponent<Dialogueable> ();
 			activeDialogue.FToInteract (true);
-		}
-		else if (other.GetComponent<Door> () != null)
-		{
+		} else if (other.GetComponent<Door> () != null) {
 			WalkBetweenRooms (other.GetComponent<Door> ());
-		}
-        else if (other.GetComponent<PickupItem>() != null)
-        {
-            if (other.GetComponent<Food>())
-            {
-                foodCollected += 1;
-            }
-            pickupUIBar.AddItem(other.GetComponent<PickupItem>());
-            Destroy(other.gameObject);
-        }
-        else if (other.GetComponent<Vent> () != null) 
-		{
-			if (inVent) 
-			{
+		} else if (other.GetComponent<PickupItem> () != null) {
+			if (other.GetComponent<Food> ()) {
+				foodCollected += 1;
+			}
+			pickupUIBar.AddItem (other.GetComponent<PickupItem> ());
+			Destroy (other.gameObject);
+		} else if (other.GetComponent<Vent> () != null) {
+			if (inVent) {
 				inVent = false;
 				ExitVent (other.GetComponent<Vent> ());
-			}
-			else
-			{
+			} else {
 				inVent = true;
 				EnterVent (other.GetComponent<Vent> ());
 			}
+		} else if (other.GetComponent<Hunter> () != null && !inVent) {
+			foodCollected = 0;
+			StartCoroutine (blackout.FadeInBlack ());
+			SceneManager.LoadSceneAsync ("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
+		} else if (other.GetComponent<SavePoint> () != null) {
+			other.GetComponent<SavePoint> ().revSave ();
+			saveable = true;
 		}
-        else if (other.GetComponent<Hunter>() != null && !inVent) {
-            foodCollected = 0;
-            StartCoroutine(blackout.FadeInBlack());
-            SceneManager.LoadSceneAsync("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
-        }
 	}
 
 	public void OnTriggerExit2D(Collider2D other)
@@ -235,6 +253,9 @@ public class SideScrollingPlayer : Player {
 		if (other.GetComponent<Dialogueable> () != null) {
 			dialogueAvail = false;
 			activeDialogue.FToInteract (false);
+		} else if (other.GetComponent<SavePoint> () != null) {
+			other.GetComponent<SavePoint> ().hideSave ();
+			saveable = false;
 		}
 	}
 

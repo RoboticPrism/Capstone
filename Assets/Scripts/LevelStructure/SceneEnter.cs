@@ -5,22 +5,20 @@ using UnityEngine.SceneManagement;
 
 public class SceneEnter : MonoBehaviour {
 
-    public string sceneToLoad;
-    bool transitioning = false;
-    public int foodCountForArea;
-    AreaInfo areaInfo;
+	public GameObject infoTracker;
+	public StateSaver.Area togo;
 
 	// Use this for initialization
 	void Start () {
-        if (StateSaver.gameState.areasEntered.Contains(sceneToLoad))
-        {
-            Destroy(this.gameObject);
-        }
+//		if (StateSaver.gameState.areasEntered.Contains(StateSaver.areas[(int)togo].name))
+//        {
+//            Destroy(this.gameObject);
+//        }
 
-        areaInfo = FindObjectOfType<AreaInfo>();
-        areaInfo.gameObject.SetActive(false);
+		infoTracker.SetActive(false);
+
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 
@@ -28,16 +26,19 @@ public class SceneEnter : MonoBehaviour {
 
     void GoToScene()
     {
-        StateSaver.gameState.AddAreaToList(sceneToLoad);
-        SceneManager.LoadSceneAsync(sceneToLoad);
+		if (togo != StateSaver.Area.Base) {
+			StateSaver.gameState.AddAreaToList (StateSaver.gameState.areas[(int)togo].name);
+		}
+		StateSaver.gameState.curArea = StateSaver.gameState.areas [(int)togo];
+		SceneManager.LoadSceneAsync(StateSaver.areas[(int)togo].name);
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.GetComponent<TopDownPlayer>())
         {
-            areaInfo.SetFoodCount(foodCountForArea);
-            areaInfo.gameObject.SetActive(true);
+			infoTracker.GetComponent<AreaDisplay>().SetFoodCount(StateSaver.gameState.areas[(int)togo].foodCount);
+			infoTracker.SetActive(true);
         }
     }
 
@@ -45,13 +46,13 @@ public class SceneEnter : MonoBehaviour {
     {
         if (col.GetComponent<TopDownPlayer>())
         {
-            areaInfo.gameObject.SetActive(false);
+			infoTracker.SetActive(false);
         }
     }
 
     void OnTriggerStay2D(Collider2D col)
     {
-        if(Input.GetAxis("Jump") > 0 && sceneToLoad != null)
+		if(Input.GetAxis("Jump") > 0 && StateSaver.areas[(int)togo].name != null)
         {
             if (col.GetComponent<TopDownPlayer>())
             {

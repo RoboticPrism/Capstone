@@ -5,10 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneExit : MonoBehaviour {
 
-    public string homeScene;
-    bool Transitioning;
     public GameObject exitUI;
-
+	public StateSaver.Area togo;
 	// Use this for initialization
 	void Start () {
 		
@@ -22,9 +20,10 @@ public class SceneExit : MonoBehaviour {
     // Add food to stores, save the game, and leave the area
     void GoToScene()
     {
-        StateSaver.gameState.AddFood(FindObjectOfType<SideScrollingPlayer>().GetFoodFound());
+		StateSaver.gameState.AddFood(FindObjectOfType<SideScrollingPlayer>().GetFoodFound());
         StateSaver.Save();
-        SceneManager.LoadSceneAsync(homeScene);
+		StateSaver.gameState.curArea = StateSaver.gameState.areas [(int)togo];
+		SceneManager.LoadSceneAsync(StateSaver.areas[(int)togo].name);
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -45,7 +44,7 @@ public class SceneExit : MonoBehaviour {
 
     void OnTriggerStay2D(Collider2D col)
     {
-        if (Input.GetAxis("Jump") > 0 && homeScene != null)
+		if (Input.GetAxis("Jump") > 0 && StateSaver.areas[(int)togo].name != null)
         {
             if (col.GetComponent<SideScrollingPlayer>())
             {

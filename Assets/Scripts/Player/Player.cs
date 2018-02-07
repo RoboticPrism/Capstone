@@ -11,6 +11,7 @@ public class Player : MonoBehaviour {
     // Use this for initialization
     protected void Start () {
         rb = GetComponent<Rigidbody2D>();
+		blackout.gameObject.SetActive(true);
         StartCoroutine(blackout.FadeOutBlack());
     }
 	
