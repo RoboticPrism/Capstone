@@ -17,6 +17,7 @@ public class SideScrollingPlayer : Player {
     private PickupUIBar pickupUIBar;
     private RoomManager roomManager;
 	private bool saveable = false;
+	private float pickupGap = 0.0f;
 
     // Use this for initialization
     new void Start () {
@@ -28,9 +29,9 @@ public class SideScrollingPlayer : Player {
 	
 	// Update is called once per frame
 	new void Update () {
-		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
-		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
-		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.1f, transform.position.z), Vector2.down, 0.01f);
+		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
 		if (hasControl && grounded) {
 			float jump_speed = 0f;
@@ -41,17 +42,7 @@ public class SideScrollingPlayer : Player {
 				rb.velocity = new Vector2 (speed, rb.velocity.y);
 			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed) {
 				rb.velocity = new Vector2 (-speed, rb.velocity.y);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-			} else if (dialogueAvail && Input.GetKeyUp (KeyCode.F)) {
-=======
-=======
->>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
-=======
->>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
 			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
->>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
 				dialogueAvail = false;
 				activeDialogue.BeginDialogue ();
 			} else if (Input.GetKeyUp (KeyCode.Q)) {
@@ -101,6 +92,13 @@ public class SideScrollingPlayer : Player {
         return foodCollected;
     }
 
+	public void foundFood(){
+		if (Time.time - pickupGap > 1.0f) {
+			pickupGap = Time.time;
+			foodCollected += 1;
+		}
+	}
+
     // Walk between doors
     public void WalkBetweenRooms(Door door)
     {
@@ -139,7 +137,6 @@ public class SideScrollingPlayer : Player {
         // Assign new current room
         RoomManager rm = FindObjectOfType<RoomManager>();
 		Room newRoom = door.GetDestinationDoor().GetMyRoom();
-		CameraControl cc = FindObjectOfType<CameraControl> ();
 		rm.SetCurrentRoom(newRoom);
 
         // Drop the blackout object over the camera
@@ -234,8 +231,8 @@ public class SideScrollingPlayer : Player {
 		} else if (other.GetComponent<Door> () != null) {
 			WalkBetweenRooms (other.GetComponent<Door> ());
 		} else if (other.GetComponent<PickupItem> () != null) {
-			if (other.GetComponent<Food> ()) {
-				foodCollected += 1;
+			if(other.GetComponent<Food>()){
+				foundFood();
 			}
 			pickupUIBar.AddItem (other.GetComponent<PickupItem> ());
 			Destroy (other.gameObject);

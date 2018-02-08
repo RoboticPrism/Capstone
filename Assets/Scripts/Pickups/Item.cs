@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Item {
 
-    Sprite sprite;
+	Sprite sprite;
 
 	public Item(Sprite sprite)
-    {
-        this.sprite = sprite;
-    }
+	{
+		this.sprite = sprite;
+	}
 }

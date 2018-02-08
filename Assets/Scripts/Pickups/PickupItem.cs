@@ -6,7 +6,7 @@ public class PickupItem : MonoBehaviour {
 
     public Sprite sprite;
 
-    // Use this for initialization
+	// Use this for initialization
     void Start () {
 		
 	}

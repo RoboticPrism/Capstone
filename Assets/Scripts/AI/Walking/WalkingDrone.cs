@@ -9,6 +9,7 @@ public class WalkingDrone : Drone {
     public bool walk = true;
 	private bool reacting = false;
 	private bool turning = false;
+	private bool grounded = true;
     // Use this for initialization
 	new void Start () {
         base.Start();
@@ -22,10 +23,13 @@ public class WalkingDrone : Drone {
     new void FixedUpdate ()
     {
         base.FixedUpdate();
-		if (walk) {
-			rb.velocity = new Vector2(2 * transform.localScale.x, 0);
+		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+		grounded = (middle && middle.collider);
+		print (grounded);
+		if (walk && grounded) {
+			rb.velocity = new Vector2(2 * transform.localScale.x, this.rb.velocity.y);
         } else {
-            rb.velocity = new Vector2(0, 0);
+			rb.velocity = new Vector2(0, this.rb.velocity.y);
         }
 		//reacting = false;
     }
@@ -67,7 +71,8 @@ public class WalkingDrone : Drone {
 
     IEnumerator TurnAround()
     {
-		while (reacting) {
+		
+		while (reacting || !grounded) {
 			walk = false;
 			yield return null;
 		}

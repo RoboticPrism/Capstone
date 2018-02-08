@@ -7,7 +7,8 @@ public class SceneEnter : MonoBehaviour {
 
 	public GameObject infoTracker;
 	public StateSaver.Area togo;
-
+	private bool canLeave;
+	private TopDownPlayer player;
 	// Use this for initialization
 	void Start () {
 //		if (StateSaver.gameState.areasEntered.Contains(StateSaver.areas[(int)togo].name))
@@ -16,12 +17,16 @@ public class SceneEnter : MonoBehaviour {
 //        }
 
 		infoTracker.SetActive(false);
-
+		canLeave = false;
 	}
 
 	// Update is called once per frame
 	void Update () {
-
+		if (canLeave && player.GetComponent<TopDownPlayer>() && Input.GetKeyUp(KeyCode.Space) && StateSaver.areas[(int)togo].name != null){
+			canLeave = false;
+			StartCoroutine(player.GetComponent<TopDownPlayer>().blackout.FadeInBlack());
+			GoToScene();
+		}
 	}
 
     void GoToScene()
@@ -39,6 +44,8 @@ public class SceneEnter : MonoBehaviour {
         {
 			infoTracker.GetComponent<AreaDisplay>().SetFoodCount(StateSaver.gameState.areas[(int)togo].foodCount);
 			infoTracker.SetActive(true);
+			player = col.GetComponent<TopDownPlayer>();
+			canLeave = true;
         }
     }
 
@@ -47,18 +54,8 @@ public class SceneEnter : MonoBehaviour {
         if (col.GetComponent<TopDownPlayer>())
         {
 			infoTracker.SetActive(false);
+			canLeave = false;
         }
     }
-
-    void OnTriggerStay2D(Collider2D col)
-    {
-		if(Input.GetAxis("Jump") > 0 && StateSaver.areas[(int)togo].name != null)
-        {
-            if (col.GetComponent<TopDownPlayer>())
-            {
-                StartCoroutine(col.GetComponent<TopDownPlayer>().blackout.FadeInBlack());
-                GoToScene();
-            }
-        }
-    }
+		
 }

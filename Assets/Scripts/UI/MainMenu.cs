@@ -18,14 +18,16 @@ public class MainMenu : MonoBehaviour {
 	private int currentX;
 	private int currentY;
 	private bool fullscreen = false;
-	private Resolution[] possibleRes;
+	private Dictionary<string, Resolution> possibleRes;
+	private List<string> options;
 	private Dropdown drop;
 
 	// Use this for initialization
 	void Start () {
 		StartCoroutine(bout.FadeInBlack());
 		Screen.fullScreen = false;
-		possibleRes = Screen.resolutions;
+		Resolution[] all = Screen.resolutions;
+		possibleRes = new Dictionary<string, Resolution> ();
 		currentX = Screen.currentResolution.width;
 		currentY = Screen.currentResolution.height;
 		newButton.SetActive (true);
@@ -38,21 +40,22 @@ public class MainMenu : MonoBehaviour {
 		fullscreenButton.SetActive (false);
 		drop = resDrop.GetComponent<Dropdown> ();
 		drop.ClearOptions ();
-		List<string> options = new List<string>();
+		options = new List<string>();
 		int curVal = 0;
-		foreach(Resolution r in possibleRes){
+		foreach(Resolution r in all){
 			string tmp = r.width + " x " + r.height;
-			if(!options.Contains(tmp)){
-				if (r.Equals (Screen.currentResolution)) {
+			if(!possibleRes.ContainsKey(tmp)){
+				if (r.width == Screen.width && r.height == Screen.height) {
 					curVal = options.Count;
 				}
-				options.Add (r.width + " x " + r.height);
+				options.Add (tmp);
+				possibleRes.Add (tmp, r);
 			}
 		}
 		drop.AddOptions (options);
 		drop.value = curVal;
 		drop.onValueChanged.AddListener(delegate { dropHandle(drop); });
-
+		dropHandle (drop);
 	}
 	
 	// Update is called once per frame
@@ -110,8 +113,8 @@ public class MainMenu : MonoBehaviour {
 	}
 
 	public void WindowedClicked(){
-		fullscreenButton.SetActive (false);
-		windowedButton.SetActive (true);
+		fullscreenButton.SetActive (true);
+		windowedButton.SetActive (false);
 		if (fullscreen) {
 			fullscreen = false;
 			updateRes ();
@@ -123,8 +126,8 @@ public class MainMenu : MonoBehaviour {
 	}
 
 	private void dropHandle(Dropdown toBeHandled){
-		currentX = possibleRes [toBeHandled.value].width;
-		currentY = possibleRes [toBeHandled.value].height;
+		currentX = possibleRes[toBeHandled.options[toBeHandled.value].text].width;
+		currentY = possibleRes[toBeHandled.options[toBeHandled.value].text].height;
 		updateRes ();
 	}
 }

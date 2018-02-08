@@ -7,20 +7,29 @@ public class SceneExit : MonoBehaviour {
 
     public GameObject exitUI;
 	public StateSaver.Area togo;
+	private bool canLeave;
+	//private Collider2D player;
+	private SideScrollingPlayer player;
 	// Use this for initialization
 	void Start () {
-		
+		canLeave = false;
+		player = FindObjectOfType<SideScrollingPlayer> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (canLeave && Input.GetKeyUp(KeyCode.Space) && StateSaver.areas[(int)togo].name != null)
+		{
+			canLeave = false;
+			StartCoroutine(player.blackout.FadeInBlack());
+			GoToScene();
+		}
 	}
 
     // Add food to stores, save the game, and leave the area
     void GoToScene()
     {
-		StateSaver.gameState.AddFood(FindObjectOfType<SideScrollingPlayer>().GetFoodFound());
+		StateSaver.gameState.AddFood(player.GetFoodFound());
         StateSaver.Save();
 		StateSaver.gameState.curArea = StateSaver.gameState.areas [(int)togo];
 		SceneManager.LoadSceneAsync(StateSaver.areas[(int)togo].name);
@@ -31,6 +40,7 @@ public class SceneExit : MonoBehaviour {
         if (col.GetComponent<SideScrollingPlayer>())
         {
             exitUI.SetActive(true);
+			canLeave = true;
         }
     }
 
@@ -39,18 +49,8 @@ public class SceneExit : MonoBehaviour {
         if (col.GetComponent<SideScrollingPlayer>())
         {
             exitUI.SetActive(false);
+			canLeave = false;
         }
     }
-
-    void OnTriggerStay2D(Collider2D col)
-    {
-		if (Input.GetAxis("Jump") > 0 && StateSaver.areas[(int)togo].name != null)
-        {
-            if (col.GetComponent<SideScrollingPlayer>())
-            {
-                StartCoroutine(col.GetComponent<SideScrollingPlayer>().blackout.FadeInBlack());
-                GoToScene();
-            }
-        }
-    }
+		
 }
