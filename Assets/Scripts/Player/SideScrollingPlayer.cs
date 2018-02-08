@@ -43,8 +43,11 @@ public class SideScrollingPlayer : Player {
 				rb.velocity = new Vector2 (-speed, rb.velocity.y);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			} else if (dialogueAvail && Input.GetKeyUp (KeyCode.F)) {
 =======
+=======
+>>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
 =======
 >>>>>>> 2402cac00702032765a6cf69e6bebc325bf2b9f8
 			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
@@ -58,6 +61,12 @@ public class SideScrollingPlayer : Player {
 				Bark ();
 			} else if (Input.GetKeyUp (KeyCode.X) && saveable) {
 				StateSaver.Save ();
+			}
+		} else if (hasControl && !grounded) {
+			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
+				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
+			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
+				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
 			}
 		} else if (hasControl && !grounded) {
 			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
