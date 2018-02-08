@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AreaInfo : MonoBehaviour
+[System.Serializable]
+public class AreaInfo
 {
-
+	public string name;
     public int foodCount;
-    public Sprite foodSprite;
-    public Text foodText;
-    public Image foodImage;
+
+
+	public AreaInfo(string name, int foodcount){
+		this.name = name;
+		this.foodCount = foodcount;
+	}
 
     // Use this for initialization
     void Start()
     {
-        foodText.text = "x" + foodCount;
-        foodImage.sprite = foodSprite;
+
     }
 
     // Update is called once per frame
@@ -24,8 +27,4 @@ public class AreaInfo : MonoBehaviour
 
     }
 
-    public void SetFoodCount(int newFoodCount)
-    {
-        foodText.text = "x" + newFoodCount;
-    }
 }

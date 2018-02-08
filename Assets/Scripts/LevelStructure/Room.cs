@@ -42,35 +42,32 @@ public class Room : MonoBehaviour {
         roomSizeMin = new Vector2(colBounds.min.x, colBounds.min.y);
         roomSizeMax = new Vector2(colBounds.max.x, colBounds.max.y);
 
-        // Search this room's children for it's doors and objects
-        foreach (Transform child in GetComponentInChildren<Transform>())
-        {
+		FindAllRelevantRoomObjsRec (this.gameObject);
+	}
+
+	void FindAllRelevantRoomObjsRec (GameObject curObj){
+		foreach (Transform child in curObj.transform)
+		{
 			if (child.GetComponent<Door>() != null)
-            {
+			{
 				Door currentDoor = child.GetComponent<Door>();
 				// Set this door's parent room to this room, then add it to
 				// this room's list of doors
 				currentDoor.myRoom = this;
 				doors.Add(currentDoor);
 			}
-            if (child.GetComponent<RoomObject>() != null)
-            {
-                roomObjects.Add(child.GetComponent<RoomObject>());
-                child.GetComponent<RoomObject>().Prepare();
-            }
-			foreach (Transform child2 in child.GetComponentInChildren<Transform>()) 
+			if (child.GetComponent<RoomObject>() != null)
 			{
-				if (child2.GetComponent<Sniffable> () != null) {
-					sniffables.Add(child2.GetComponent<Sniffable>());
-				}
-				if (child2.GetComponent<RoomObject>() != null)
-				{
-					roomObjects.Add(child2.GetComponent<RoomObject>());
-				}
+				roomObjects.Add(child.GetComponent<RoomObject>());
+				child.GetComponent<RoomObject>().Prepare();
 			}
+			if (child.GetComponent<Sniffable> () != null) {
+				sniffables.Add(child.GetComponent<Sniffable>());
+			}
+			FindAllRelevantRoomObjsRec (child.gameObject);
 		}
 	}
-	
+
 	// Update is called once per frame
 	void Update ()
     {
