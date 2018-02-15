@@ -6,11 +6,12 @@ using System.IO;
 
 public static class StateSaver {
 
-	public enum Area {Base=0, Jack=1, Overworld=2};
+	public enum Area {Base=0, Jack=1, Overworld=2, SR3=3};
 	public const string homeArea = "TestBase";
 	public const string overworld = "OverworldExampleScene";
 	public const string jack = "Jack's";
-	public static AreaInfo[] areas = { new AreaInfo(homeArea, 0), new AreaInfo(jack, 3), new AreaInfo(overworld, 3)};
+	public const string sr3 = "StoryRom3";
+	public static AreaInfo[] areas = { new AreaInfo(homeArea, 0), new AreaInfo(jack, 3), new AreaInfo(overworld, 3), new AreaInfo(sr3, 1)};
 	public static GameState gameState;
 
     // Writes the contents of this game state to a file

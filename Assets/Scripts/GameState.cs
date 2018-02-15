@@ -12,7 +12,7 @@ public class GameState {
 
     public GameState()
     {
-		areas = new AreaInfo[] { new AreaInfo(StateSaver.homeArea, 0), new AreaInfo(StateSaver.jack, 3), new AreaInfo(StateSaver.overworld, 3) };
+		areas = new AreaInfo[] { new AreaInfo(StateSaver.homeArea, 0), new AreaInfo(StateSaver.jack, 3), new AreaInfo(StateSaver.overworld, 3), new AreaInfo(StateSaver.sr3, 1)};
         foodStorage = 10;
 		curArea = areas [0];
         areasEntered = new List<string>();

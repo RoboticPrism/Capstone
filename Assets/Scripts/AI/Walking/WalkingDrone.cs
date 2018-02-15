@@ -25,7 +25,6 @@ public class WalkingDrone : Drone {
         base.FixedUpdate();
 		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		grounded = (middle && middle.collider);
-		print (grounded);
 		if (walk && grounded) {
 			rb.velocity = new Vector2(2 * transform.localScale.x, this.rb.velocity.y);
         } else {
@@ -47,7 +46,6 @@ public class WalkingDrone : Drone {
 			walk = false;
 			if (!turning) {
 				if (tmp) {
-					print ("turn");
 					transform.localScale = new Vector3 (
 						transform.localScale.x * -1,
 						transform.localScale.y,

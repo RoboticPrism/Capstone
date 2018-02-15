@@ -13,9 +13,8 @@ public class SideScrollingPlayer : Player {
 	private bool dialogueAvail = false;
     private int foodCollected = 0;
 	private Dialogueable activeDialogue;
-	public RoomManager roomMan;
+	public RoomManager roomManager;
     private PickupUIBar pickupUIBar;
-    private RoomManager roomManager;
 	private bool saveable = false;
 	private float pickupGap = 0.0f;
 
@@ -24,7 +23,6 @@ public class SideScrollingPlayer : Player {
         base.Start();
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
         pickupUIBar = FindObjectOfType<PickupUIBar>();
-        roomManager = FindObjectOfType<RoomManager>();
     }
 	
 	// Update is called once per frame
@@ -47,7 +45,7 @@ public class SideScrollingPlayer : Player {
 				activeDialogue.BeginDialogue ();
 			} else if (Input.GetKeyUp (KeyCode.Q)) {
 				hasControl = false;
-				roomMan.RevealSniffablesInCurRoom ();
+				roomManager.RevealSniffablesInCurRoom ();
 			} else if (Input.GetKeyUp (KeyCode.E)) {
 				Bark ();
 			} else if (Input.GetKeyUp (KeyCode.X) && saveable) {
@@ -138,7 +136,6 @@ public class SideScrollingPlayer : Player {
         RoomManager rm = FindObjectOfType<RoomManager>();
 		Room newRoom = door.GetDestinationDoor().GetMyRoom();
 		rm.SetCurrentRoom(newRoom);
-
         // Drop the blackout object over the camera
         yield return StartCoroutine(blackout.FadeInBlack());
 
