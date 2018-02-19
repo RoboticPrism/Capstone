@@ -27,6 +27,7 @@ public class SideScrollingPlayer : Player {
 	
 	// Update is called once per frame
 	new void Update () {
+		base.Update ();
 		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
@@ -149,9 +150,7 @@ public class SideScrollingPlayer : Player {
         // Move player to new room
         while (Vector3.Distance(this.gameObject.transform.position, goToPosition) > 0.01f)
         {
-            this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position,
-                                                                     goToPosition,
-                                                                     speed/100.0f);
+			this.gameObject.transform.position = goToPosition;
             yield return null;
         }
 
