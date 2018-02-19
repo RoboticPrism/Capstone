@@ -13,6 +13,7 @@ public class Player : MonoBehaviour {
         rb = GetComponent<Rigidbody2D>();
 		blackout.gameObject.SetActive(true);
         StartCoroutine(blackout.FadeOutBlack());
+		StateSaver.gameState.startTimer ();
     }
 	
 	// Update is called once per frame

@@ -29,6 +29,7 @@ public class SceneExit : MonoBehaviour {
     // Add food to stores, save the game, and leave the area
     void GoToScene()
     {
+		StateSaver.gameState.pauseTimer ();
 		StateSaver.gameState.AddFood(player.GetFoodFound());
         StateSaver.Save();
 		StateSaver.gameState.curArea = StateSaver.gameState.areas [(int)togo];

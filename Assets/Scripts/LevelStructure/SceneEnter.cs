@@ -31,6 +31,7 @@ public class SceneEnter : MonoBehaviour {
 
     void GoToScene()
     {
+		StateSaver.gameState.pauseTimer ();
 		if (togo != StateSaver.Area.Base) {
 			StateSaver.gameState.AddAreaToList (StateSaver.gameState.areas[(int)togo].name);
 		}

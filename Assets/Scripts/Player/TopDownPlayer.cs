@@ -11,7 +11,6 @@ public class TopDownPlayer : Player {
 	new void Start () {
         base.Start();
         playerSprite = transform.GetChild(0).gameObject;
-        
 	}
 	
 	// Update is called once per frame

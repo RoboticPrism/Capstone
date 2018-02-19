@@ -31,6 +31,7 @@ public static class StateSaver {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
             gameState = (GameState)bf.Deserialize(file);
+			gameState.startup ();
             file.Close();
 			return true;
         }

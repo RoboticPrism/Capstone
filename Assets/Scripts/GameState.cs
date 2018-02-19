@@ -14,16 +14,14 @@ public class GameState {
 	private Thread decayThread;
 	private float foodTimer;
 	private const float decayTime = 60.0f;
-	private static bool decaying = false;
+	private static bool decaying;
 
     public GameState()
     {
 		areas = new AreaInfo[] { new AreaInfo(StateSaver.homeArea, 0), new AreaInfo(StateSaver.jack, 3), new AreaInfo(StateSaver.overworld, 3), new AreaInfo(StateSaver.sr3, 1)};
         foodStorage = 10;
-		curArea = areas [0];
-        areasEntered = new List<string>();
-		foodTimer = Time.time;
-		decayThread = new Thread (foodCountdown);
+		areasEntered = new List<string> ();
+		startup ();
     }
 
 	public void AddFood(int food)
@@ -62,5 +60,13 @@ public class GameState {
 
 	public void startTimer(){
 		decaying = true;
+	}
+
+	public void startup(){
+		curArea = areas [0];
+		decaying = false;
+		foodTimer = Time.time;
+		decayThread = new Thread (foodCountdown);
+		decayThread.Start ();
 	}
 }
