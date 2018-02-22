@@ -35,8 +35,10 @@ public class WalkingDrone : Drone {
 
     public void HitEdge()
     {
-        StopCoroutine("TrunAround");
-        StartCoroutine("TurnAround");
+		if (this.gameObject.activeInHierarchy) {
+			StopCoroutine ("TrunAround");
+			StartCoroutine ("TurnAround");
+		}
     }
 
 	public void ReactToBark(Vector3 point){

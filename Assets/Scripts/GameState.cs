@@ -45,8 +45,8 @@ public class GameState {
     }
 
 	public void update(){
-		timeLeft = Time.time - foodTimer;
-		if (timeLeft >= decayTime && foodStorage >= 0) {
+		timeLeft = decayTime - (Time.time - foodTimer);
+		if (timeLeft <= 0 && foodStorage >= 0) {
 			foodStorage -= 1;
 			foodTimer = Time.time;
 		} 
