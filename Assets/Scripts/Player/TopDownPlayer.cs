@@ -11,11 +11,11 @@ public class TopDownPlayer : Player {
 	new void Start () {
         base.Start();
         playerSprite = transform.GetChild(0).gameObject;
-        
 	}
 	
 	// Update is called once per frame
 	new void Update () {
+		base.Update ();
         rb.velocity = new Vector2(
             Input.GetAxis("Horizontal") * speed * Time.deltaTime, 
             Input.GetAxis("Vertical") * speed * Time.deltaTime

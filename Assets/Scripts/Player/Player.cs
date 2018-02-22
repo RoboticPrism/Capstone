@@ -11,11 +11,17 @@ public class Player : MonoBehaviour {
     // Use this for initialization
     protected void Start () {
         rb = GetComponent<Rigidbody2D>();
+		blackout.gameObject.SetActive(true);
         StartCoroutine(blackout.FadeOutBlack());
     }
 	
 	// Update is called once per frame
 	protected void Update () {
-		
+		StateSaver.gameState.update ();
+	}
+
+	protected void OnGUI() {
+		string foodLeft = StateSaver.gameState.foodStorage.ToString() + " Rations of Food Remaining\nFood Storage Decays in: " + ((int)(StateSaver.gameState.timeLeft)).ToString();
+		GUI.Label (new Rect(Screen.width/2, 0 + (Screen.height/20), 200, 100), foodLeft);
 	}
 }

@@ -21,10 +21,10 @@ public class CameraControl : MonoBehaviour {
     public Vector2 roomSizeMax;
 
     [Header("Camera Movement Speeds")]
-    public float cameraMoveSpeed = 0.1f;
+    public float cameraMoveSpeed = 0.2f;
     public float cameraScaleSpeed = 0.02f;
 
-    private Camera camera;
+    private Camera cam;
 	private bool pause = false;
 	private bool revealing = false;
 	private bool waitToCenter = false;
@@ -32,7 +32,7 @@ public class CameraControl : MonoBehaviour {
 
     void Start () {
         // Set the camera for calculation later
-        camera = this.GetComponent<Camera>();
+        cam = this.GetComponent<Camera>();
     }
 
 
@@ -65,7 +65,7 @@ public class CameraControl : MonoBehaviour {
 			}
 
 			// If aspect ratio on ideal room size doesn't match the current aspect ratio, change width or height to make it match
-			float aspect = camera.aspect;
+			float aspect = cam.aspect;
         
 			// If width is too big, lower it to be in line with aspect ration
 			if (roomWidth / roomHeight > aspect) {
@@ -80,20 +80,20 @@ public class CameraControl : MonoBehaviour {
 			// Set camera size gradually
         
 			// If camera needs to be bigger, boost it up
-			if (camera.orthographicSize < roomHeight / 2.0f) {
-				camera.orthographicSize += cameraScaleSpeed;
+			if (cam.orthographicSize < roomHeight / 2.0f) {
+				cam.orthographicSize += cameraScaleSpeed;
 			}
-        	// If camera needs to be smaller, scale it down
-        	else if (camera.orthographicSize > roomHeight / 2.0f) {
-				camera.orthographicSize -= cameraScaleSpeed;
+        	// If cam needs to be smaller, scale it down
+        	else if (cam.orthographicSize > roomHeight / 2.0f) {
+				cam.orthographicSize -= cameraScaleSpeed;
 			}
 			// If the camera is close enough to the right size, jump it there
-			if (Mathf.Abs (camera.orthographicSize - (roomHeight / 2.0f)) < cameraScaleSpeed) {
-				camera.orthographicSize = roomHeight / 2.0f;
+			if (Mathf.Abs (cam.orthographicSize - (roomHeight / 2.0f)) < cameraScaleSpeed) {
+				cam.orthographicSize = roomHeight / 2.0f;
 			}  
         
-			float cameraHeight = camera.orthographicSize * 2.0f;
-			float cameraWidth = cameraHeight * camera.aspect;
+			float cameraHeight = cam.orthographicSize * 2.0f;
+			float cameraWidth = cameraHeight * cam.aspect;
 
 			// Calculate the camera position in this room
 			Vector3 playerPosition = player.transform.position;
