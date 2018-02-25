@@ -21,7 +21,7 @@ public class CameraControl : MonoBehaviour {
     public Vector2 roomSizeMax;
 
     [Header("Camera Movement Speeds")]
-    public float cameraMoveSpeed = 0.1f;
+    public float cameraMoveSpeed = 0.2f;
     public float cameraScaleSpeed = 0.02f;
 
     private Camera cam;

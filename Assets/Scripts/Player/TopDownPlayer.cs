@@ -15,6 +15,7 @@ public class TopDownPlayer : Player {
 	
 	// Update is called once per frame
 	new void Update () {
+		base.Update ();
         rb.velocity = new Vector2(
             Input.GetAxis("Horizontal") * speed * Time.deltaTime, 
             Input.GetAxis("Vertical") * speed * Time.deltaTime
