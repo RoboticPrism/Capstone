@@ -2,46 +2,54 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WalkingDrone : Drone {
+public class WalkingDrone : Drone
+{
 
-    public GameObject wallDetector;
-    public GameObject edgeDetector;
-    public bool walk = true;
+	public GameObject wallDetector;
+	public GameObject edgeDetector;
+	public bool walk = true;
 	private bool reacting = false;
 	private bool turning = false;
 	private bool grounded = true;
-    // Use this for initialization
-	new void Start () {
-        base.Start();
+	// Use this for initialization
+	new void Start ()
+	{
+		base.Start ();
 	}
 	
 	// Update is called once per frame
-	new void Update () {
-        base.Update();
+	new void Update ()
+	{
+		base.Update ();
 	}
 
-    new void FixedUpdate ()
-    {
-        base.FixedUpdate();
-		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
-		grounded = (middle && middle.collider);
-		if (walk && grounded) {
-			rb.velocity = new Vector2(2 * transform.localScale.x, this.rb.velocity.y);
-        } else {
-			rb.velocity = new Vector2(0, this.rb.velocity.y);
-        }
-		//reacting = false;
-    }
+	new void FixedUpdate ()
+	{
+		if (!StateSaver.gameState.paused) {
+			base.FixedUpdate ();
+			RaycastHit2D middle = Physics2D.Raycast (new Vector3 (transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+			grounded = (middle && middle.collider);
+			if (walk && grounded) {
+				rb.velocity = velToAdd + new Vector2 (2 * transform.localScale.x, this.rb.velocity.y);
+			} else {
+				rb.velocity = velToAdd + new Vector2 (0, this.rb.velocity.y);
+			}
+			//reacting = false;
+		} else {
+			rb.velocity = Vector2.zero;
+		}
+	}
 
-    public void HitEdge()
-    {
+	public void HitEdge ()
+	{
 		if (this.gameObject.activeInHierarchy) {
 			StopCoroutine ("TrunAround");
 			StartCoroutine ("TurnAround");
 		}
-    }
+	}
 
-	public void ReactToBark(Vector3 point){
+	public void ReactToBark (Vector3 point)
+	{
 		if (!reacting) {
 			reacting = true;
 			bool tmp = Vector3.Angle (transform.InverseTransformPoint (point), transform.position - transform.InverseTransformPoint (point)) > 90;
@@ -59,7 +67,8 @@ public class WalkingDrone : Drone {
 		}
 	}
 
-	IEnumerator Reacting(){
+	IEnumerator Reacting ()
+	{
 		if (turning) {
 			yield return new WaitForSeconds (6.5f);
 		} else {
@@ -69,8 +78,8 @@ public class WalkingDrone : Drone {
 		walk = true;
 	}
 
-    IEnumerator TurnAround()
-    {
+	IEnumerator TurnAround ()
+	{
 		
 		while (reacting || !grounded) {
 			walk = false;
@@ -87,5 +96,5 @@ public class WalkingDrone : Drone {
 		walk = true;
 		turning = false;
 		
-    }
+	}
 }

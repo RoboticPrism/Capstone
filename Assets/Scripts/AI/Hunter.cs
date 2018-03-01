@@ -6,7 +6,6 @@ public class Hunter : MonoBehaviour {
 
     SideScrollingPlayer target;
     RoomManager roomManager;
-
 	// Use this for initialization
 	void Start () {
         target = FindObjectOfType<SideScrollingPlayer>();
@@ -20,9 +19,10 @@ public class Hunter : MonoBehaviour {
 
     void FixedUpdate ()
     {
-        if (!roomManager.roomTransition)
+		if (!roomManager.roomTransition && !StateSaver.gameState.paused)
         {
             transform.position = Vector2.MoveTowards(transform.position, target.transform.position, 0.03f);
         }
     }
+
 }

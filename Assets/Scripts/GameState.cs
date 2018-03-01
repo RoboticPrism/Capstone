@@ -10,6 +10,7 @@ public class GameState {
 	public AreaInfo[] areas;
 	public AreaInfo curArea;
     public List<string> areasEntered;
+	public bool paused = false;
 
 	private float foodTimer;
 	private const float decayTime = 60.0f;

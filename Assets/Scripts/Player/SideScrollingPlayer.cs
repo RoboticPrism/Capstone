@@ -17,7 +17,7 @@ public class SideScrollingPlayer : Player {
     private PickupUIBar pickupUIBar;
 	private bool saveable = false;
 	private float pickupGap = 0.0f;
-
+	private bool paused = false;
     // Use this for initialization
     new void Start () {
         base.Start();
@@ -30,21 +30,34 @@ public class SideScrollingPlayer : Player {
 		base.Update ();
 		checkOutOfBounds ();
 
-
 		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+
+		Vector2 velToAdd = Vector2.zero;
+		if (left.rigidbody != null) {
+			velToAdd = left.rigidbody.velocity;
+		} else if (middle.rigidbody != null) {
+			velToAdd = middle.rigidbody.velocity;
+		} else if (right.rigidbody != null) {
+			velToAdd = right.rigidbody.velocity;
+		}
+
+
 		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
-		if (hasControl && grounded) {
+		if (paused) {
+			rb.velocity = Vector2.zero;
+		} else if (hasControl && grounded) {
 			float jump_speed = 0f;
 			if (Input.GetKeyDown (KeyCode.Space)) {
 				jump_speed = jump + (0.1f * rb.velocity.x);
-				rb.velocity = new Vector2 (rb.velocity.x, jump_speed);
+				rb.velocity = velToAdd + new Vector2 (rb.velocity.x, jump_speed);
 			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed) {
-				rb.velocity = new Vector2 (speed, rb.velocity.y);
+				rb.velocity = velToAdd + new Vector2 (speed, rb.velocity.y);
 			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed) {
-				rb.velocity = new Vector2 (-speed, rb.velocity.y);
-			} else if (dialogueAvail && Input.GetKey (KeyCode.F)) {
+				rb.velocity = velToAdd + new Vector2 (-speed, rb.velocity.y);
+			}
+			if (dialogueAvail && Input.GetKey (KeyCode.F)) {
 				dialogueAvail = false;
 				activeDialogue.BeginDialogue ();
 			} else if (Input.GetKeyUp (KeyCode.Q)) {
@@ -54,36 +67,23 @@ public class SideScrollingPlayer : Player {
 				Bark ();
 			} else if (Input.GetKeyUp (KeyCode.X) && saveable) {
 				StateSaver.Save ();
+			} else if (Input.GetKeyUp (KeyCode.T)) {
+				InitiateTakedown ();
 			}
 		} else if (hasControl && !grounded) {
 			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
-				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
+				rb.velocity = velToAdd + new Vector2 (speed * 0.5f, rb.velocity.y);
 			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
-				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
+				rb.velocity = velToAdd + new Vector2 (-speed * 0.5f, rb.velocity.y);
 			}
-		} else if (hasControl && !grounded) {
-			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
-				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
-				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
-			}
-		} else if (hasControl && !grounded) {
-			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
-				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
-				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
-			}
-		} else if (hasControl && !grounded) {
-			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
-				rb.velocity = new Vector2 (speed * 0.5f, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
-				rb.velocity = new Vector2 (-speed * 0.5f, rb.velocity.y);
+			if (Input.GetKeyUp (KeyCode.T)) {
+				InitiateTakedown ();
 			}
 		}
 
-        if (rb.velocity.x >= 0) {
+        if (rb.velocity.x > 0.01f) {
             this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
-        } else if (rb.velocity.x < 0)
+        } else if (rb.velocity.x < -0.01f)
         {
             this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
         }
@@ -276,6 +276,42 @@ public class SideScrollingPlayer : Player {
 	}
 
 	public void RevealDone(){
+		hasControl = true;
+	}
+
+	void InitiateTakedown(){
+		RaycastHit2D botInFront = Physics2D.Raycast (new Vector3(transform.position.x - (this.transform.localScale.x * (this.GetComponent<BoxCollider2D>().bounds.extents.x + 0.01f)), transform.position.y, transform.position.z), new Vector2(this.transform.localScale.x, 0), 1.0f);
+		if (botInFront.collider != null && botInFront.transform.GetComponent<Drone> () != null) {
+			StartCoroutine ("PreformTakedown", botInFront.transform.GetComponent<Drone>());
+		}
+	}
+
+	IEnumerator PreformTakedown(Drone target){
+		bool succeeded = false;
+		StopTime ();
+		TakedownGame minigame = TakedownGame.GetRandGame();
+		if (minigame == null) {
+			print ("No Game Received!");
+			yield break;
+		}
+		minigame.BeginGame();
+		while (!minigame.CheckFinished(ref succeeded)) {
+			yield return new WaitForSecondsRealtime (1);
+		}
+		if (succeeded) {
+			Destroy (target.gameObject);
+		}
+		Destroy (minigame);
+		StartTime ();
+	}
+
+	public void StopTime(){
+		StateSaver.gameState.paused = true;
+		hasControl = false;
+	}
+
+	public void StartTime(){
+		StateSaver.gameState.paused = false;
 		hasControl = true;
 	}
 }
