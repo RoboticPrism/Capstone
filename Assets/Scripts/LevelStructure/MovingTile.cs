@@ -36,9 +36,10 @@ public class MovingTile : MonoBehaviour {
 				matched = true;
 			}
 			Vector3 tmpPt = towPt1 ? point1 : point2;
-			if (Vector3.Distance (this.gameObject.transform.position, tmpPt) >= 0.01f) {
+			float dist = Vector3.Distance (this.gameObject.transform.position, tmpPt);
+			if (dist >= 0.01f) {
 				int coef = (tmpPt.x - this.transform.position.x) > 0 ? 1 : -1;
-				rb.velocity = new Vector2 (2 * coef, 0);
+				rb.velocity = doneMove ? Vector2.zero : new Vector2 (2 * coef, 0);
 			} else {
 				doneMove = true;
 				if (leader) {
