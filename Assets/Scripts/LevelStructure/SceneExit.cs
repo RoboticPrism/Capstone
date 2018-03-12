@@ -37,8 +37,10 @@ public class SceneExit : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.GetComponent<SideScrollingPlayer>())
+		SideScrollingPlayer player = col.GetComponent<SideScrollingPlayer> ();
+		if (player != null)
         {
+			player.ToggleAbilityControl ();
             exitUI.SetActive(true);
 			canLeave = true;
         }
@@ -46,8 +48,10 @@ public class SceneExit : MonoBehaviour {
 
     void OnTriggerExit2D(Collider2D col)
     {
-        if (col.GetComponent<SideScrollingPlayer>())
+		SideScrollingPlayer player = col.GetComponent<SideScrollingPlayer> ();
+		if (player != null)
         {
+			player.ToggleAbilityControl ();
             exitUI.SetActive(false);
 			canLeave = false;
         }

@@ -4,7 +4,11 @@ using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
+//This class functions as the container for the universal constants of our game
+//as well as handling the loading and saving of the game state
 public static class StateSaver {
+
+	public enum Minigames { PatternSquares };
 
 	public enum Area {Base=0, Jack=1, Overworld=2, SR3=3, SR5=4, BLD2=5};
 	public const string homeArea = "TestBase";
@@ -43,6 +47,4 @@ public static class StateSaver {
 	public static void Reset(){
 		gameState = new GameState ();
 	}
-
-    
 }
