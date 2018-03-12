@@ -17,9 +17,17 @@ public class Drone : MonoBehaviour {
 	
 	// Update is called once per frame
 	protected void Update () {
+		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
-		if (middle.rigidbody != null && middle.rigidbody.gameObject.GetComponent<SideScrollingPlayer>() == null) {
+		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+
+		velToAdd = Vector2.zero;
+		if (left.rigidbody != null && left.rigidbody.isKinematic) {
+			velToAdd = left.rigidbody.velocity;
+		} else if (middle.rigidbody && middle.rigidbody.isKinematic) {
 			velToAdd = middle.rigidbody.velocity;
+		} else if (right.rigidbody && right.rigidbody.isKinematic) {
+			velToAdd = right.rigidbody.velocity;
 		}
 		if (suspicion >= maxSuspicion)
         {
@@ -30,7 +38,7 @@ public class Drone : MonoBehaviour {
 
     protected void FixedUpdate ()
     {
-        if (seesPlayer && suspicion < maxSuspicion)
+		if (seesPlayer && suspicion < maxSuspicion && !StateSaver.gameState.paused)
         {
             suspicion++;
         }

@@ -21,22 +21,16 @@ public class WalkingDrone : Drone
 	new void Update ()
 	{
 		base.Update ();
-	}
-
-	new void FixedUpdate ()
-	{
 		if (!StateSaver.gameState.paused) {
 			base.FixedUpdate ();
 			RaycastHit2D middle = Physics2D.Raycast (new Vector3 (transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
 			grounded = (middle && middle.collider);
 			if (walk && grounded) {
 				rb.velocity = velToAdd + new Vector2 (2 * transform.localScale.x, this.rb.velocity.y);
-			} else {
-				rb.velocity = velToAdd + new Vector2 (0, this.rb.velocity.y);
 			}
 			//reacting = false;
 		} else {
-			rb.velocity = Vector2.zero;
+			rb.velocity = velToAdd + Vector2.zero;
 		}
 	}
 
