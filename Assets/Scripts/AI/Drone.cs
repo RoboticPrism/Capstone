@@ -10,9 +10,12 @@ public class Drone : MonoBehaviour {
     public bool alerted = false;
     protected Rigidbody2D rb;
 	protected Vector2 velToAdd = Vector2.zero;
+	protected GameObject alertIcon;
     // Use this for initialization
     protected void Start () {
         rb = GetComponent<Rigidbody2D>();
+		alertIcon = this.transform.Find ("AlertIcon").gameObject;
+		alertIcon.SetActive (false);
 	}
 	
 	// Update is called once per frame
@@ -29,11 +32,13 @@ public class Drone : MonoBehaviour {
 		} else if (right.rigidbody && right.rigidbody.isKinematic) {
 			velToAdd = right.rigidbody.velocity;
 		}
+		alerted = suspicion >= maxSuspicion;
 		if (suspicion >= maxSuspicion)
         {
-            alerted = true;
             SpawnHunter();
         }
+		alertIcon.SetActive (alerted);
+
 	}
 
     protected void FixedUpdate ()
