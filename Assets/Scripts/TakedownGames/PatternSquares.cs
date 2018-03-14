@@ -99,22 +99,18 @@ public class PatternSquares : TakedownGame {
 	}
 
 	public void RedSelected(){
-		print ("Red Clicked");
 		SquareSelected (SquareCode.Red);
 	}
 
 	public void BlueSelected(){
-		print ("Blue Clicked");
 		SquareSelected (SquareCode.Blue);
 	}
 
 	public void GreenSelected(){
-		print ("Green Clicked");
 		SquareSelected (SquareCode.Green);
 	}
 
 	public void YellowSelected(){
-		print ("Yellow Clicked");
 		SquareSelected (SquareCode.Yellow);
 	}
 

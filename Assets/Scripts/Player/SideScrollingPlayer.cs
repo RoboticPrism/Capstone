@@ -50,16 +50,19 @@ public class SideScrollingPlayer : Player {
 		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
 		if (paused || !hasControl) {
 			rb.velocity = Vector2.zero + velToAdd;
-		} else if (grounded) {
+		} else {
 			float jump_speed = 0f;
-			if (Input.GetKeyDown (KeyCode.Space)) {
+			float tmpSpeed = !grounded ? speed * 0.5f : speed;
+
+			if (Input.GetKeyDown (KeyCode.Space) && grounded) {
 				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = velToAdd + new Vector2 (rb.velocity.x, jump_speed);
-			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed) {
-				rb.velocity = velToAdd + new Vector2 (speed, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed) {
-				rb.velocity = velToAdd + new Vector2 (-speed, rb.velocity.y);
+			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < tmpSpeed) {
+				rb.velocity = velToAdd + new Vector2 (tmpSpeed, rb.velocity.y);
+			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -tmpSpeed) {
+				rb.velocity = velToAdd + new Vector2 (-tmpSpeed, rb.velocity.y);
 			}
+
 			if (dialogueAvail && Input.GetKey (KeyCode.F)) {
 				dialogueAvail = false;
 				activeDialogue.BeginDialogue ();
@@ -78,20 +81,6 @@ public class SideScrollingPlayer : Player {
 			} else if (Input.GetKeyUp (KeyCode.I)) {
 				abilityCont.ToggleInfo ();
 			}
-		} else {
-			if (Input.GetKey (KeyCode.D) && rb.velocity.x < speed * 0.5f) {
-				rb.velocity = velToAdd + new Vector2 (speed * 0.5f, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -speed * 0.5f) {
-				rb.velocity = velToAdd + new Vector2 (-speed * 0.5f, rb.velocity.y);
-			}
-			if (Input.GetKeyUp (KeyCode.T)) {
-				RaycastHit2D botInFront = Physics2D.Raycast (new Vector3(transform.position.x + (this.transform.localScale.x * (this.GetComponent<BoxCollider2D>().bounds.extents.x + 0.01f)), transform.position.y, transform.position.z), new Vector2(this.transform.localScale.x, 0), 1.0f);
-				if (botInFront.collider != null && botInFront.transform.GetComponent<Drone> () != null && abilityCont.TakedownAvailable ()) {
-					StartCoroutine ("PreformTakedown", botInFront.transform.GetComponent<Drone>());
-				}
-			} else if (Input.GetKeyUp (KeyCode.Q) && abilityCont.BarkAvailable ()) {
-				Bark ();
-			} 
 		}
 
         if (rb.velocity.x > 0.01f) {
