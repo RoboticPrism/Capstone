@@ -7,7 +7,7 @@ public class ShivToTheBeat : TakedownGame {
 
 	public List<Sprite> possibleKeys;
 
-	private DIFFICULTY gameDiff = DIFFICULTY.EASY;
+	private DIFFICULTY gameDiff = DIFFICULTY.MAKE_IT_STOP;
 	private STYLE gameStyle = STYLE.RAIN;
 
 	private bool playing = false;
@@ -23,9 +23,9 @@ public class ShivToTheBeat : TakedownGame {
 
 	private GameObject toHitStartBox;
 
-	private float minSepTime = 1f;
+	private float minSepTime = 0.2f;
 
-	private int toHitOnScreenCap = 10;
+	private int toHitOnScreenCap = 150;
 	public GameObject toHitPrefab;
 
 	private enum DIFFICULTY
@@ -68,7 +68,7 @@ public class ShivToTheBeat : TakedownGame {
 						dropping.Enqueue (drop);
 						drop.GetComponent<ToHitScript> ().Drop ();
 						hitRelTimer = Time.time;
-						minSepTime = Random.Range (1.0f, 2.0f);
+						minSepTime = Random.Range (0.2f, 0.7f);
 					}
 				}
 				
@@ -77,7 +77,7 @@ public class ShivToTheBeat : TakedownGame {
 						hb.GetComponent<Image> ().sprite = dropping.Peek ().GetComponent<Image> ().sprite;
 					}
 				}
-
+					
 				if (Input.GetKeyDown (KeyCode.Alpha0)) {
 					done = !CheckHit ("0");
 				} 
@@ -126,16 +126,12 @@ public class ShivToTheBeat : TakedownGame {
 				if (Input.GetKeyDown (KeyCode.Space)) {
 					done = !CheckHit ("space");
 				}
-
+					
 				if (dropping.Count > 0) {
 					GameObject first = dropping.Peek ();
 
 				}
-
-			} else {
-				done = true;
 			}
-
 		}
 	}
 
@@ -184,7 +180,7 @@ public class ShivToTheBeat : TakedownGame {
 	}
 
 	private void InitPool(){
-		int numObj = ((gameDiff == DIFFICULTY.MAKE_IT_STOP) ? 50 : (((int)gameDiff + 1) * 10)); 
+		int numObj = ((gameDiff == DIFFICULTY.MAKE_IT_STOP) ? 150 : (((int)gameDiff + 1) * 10)); 
 		for (int i = 0; i < numObj; i++) {
 			GameObject toHit = (GameObject)Instantiate (toHitPrefab);
 			toHit.transform.SetParent(toHitStartBox.transform);
@@ -194,7 +190,7 @@ public class ShivToTheBeat : TakedownGame {
 			int hitboxInd = Random.Range (0, allHitboxes.Count);
 			toHit.GetComponent<ToHitScript>().SetStartPos(new Vector2(allHitboxes[hitboxInd].GetComponent<RectTransform>().anchoredPosition.x, 0), OffScreen);
 			if (gameStyle == STYLE.RAIN) {
-				toHit.GetComponent<ToHitScript> ().velocity = new Vector2 (0, -3);
+				toHit.GetComponent<ToHitScript> ().velocity = new Vector2 (0, -7.0f);
 			}
 			toDrop.Enqueue (toHit);
 		}
@@ -203,16 +199,16 @@ public class ShivToTheBeat : TakedownGame {
 	private bool CheckHit(string keyHit){
 		bool hitOK = false;
 		GameObject first = dropping.Peek();
-		//print (first.GetComponent<Image> ().sprite.name == keyHit);
-		print (first.GetComponent<ToHitScript>().HitSuccess());
 		if (first.GetComponent<Image> ().sprite.name == keyHit && first.GetComponent<ToHitScript>().HitSuccess()) {
 			hitOK = true;
 			Destroy (dropping.Dequeue ());
 		}
-		return succeeded &= hitOK;
+		succeeded = hitOK;
+		return hitOK;
 	}
 
 	public void OffScreen(){
+		print ("offscreen");
 		succeeded = false;
 		done = true;
 	}

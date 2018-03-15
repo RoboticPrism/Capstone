@@ -26,6 +26,7 @@ public class SideScrollingPlayer : Player {
 		Physics2D.IgnoreLayerCollision (LayerMask.NameToLayer ("Default"), LayerMask.NameToLayer ("VentLayer"), true);
         pickupUIBar = FindObjectOfType<PickupUIBar>();
 		abilityCont = ((GameObject)Instantiate (Resources.Load ("Prefabs/AbilityUI"))).GetComponent<AbilityUIControl>();
+		roomManager = FindObjectOfType<RoomManager>();
     }
 	
 	// Update is called once per frame
@@ -144,14 +145,14 @@ public class SideScrollingPlayer : Player {
     IEnumerator WalkBetweenRoomsCoroutine(Door door)
     {
         // Remove player control
+		roomManager = FindObjectOfType<RoomManager>();
+		Room newRoom = door.GetDestinationDoor().GetMyRoom();
+		roomManager.SetCurrentRoom(newRoom);
         hasControl = false;
-        roomManager.roomTransition = true;
+		roomManager.roomTransition = true;
         this.GetComponent<Rigidbody2D>().velocity = new Vector2(0.0f, 0.0f);
         
         // Assign new current room
-        RoomManager rm = FindObjectOfType<RoomManager>();
-		Room newRoom = door.GetDestinationDoor().GetMyRoom();
-		rm.SetCurrentRoom(newRoom);
         // Drop the blackout object over the camera
         yield return StartCoroutine(blackout.FadeInBlack());
 
@@ -177,11 +178,12 @@ public class SideScrollingPlayer : Player {
         yield return StartCoroutine(blackout.FadeOutBlack());
 
         // Now that the old room is offscree we can clean it up
-        rm.CleanUpRooms();
+		roomManager.CleanUpRooms();
 
         // Reenable Control
+
         hasControl = true;
-        roomManager.roomTransition = false;
+		roomManager.roomTransition = false;
     }
 
 	public void EnterVent(Vent vent)

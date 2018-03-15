@@ -21,10 +21,10 @@ public class Hunter : MonoBehaviour {
 
     void FixedUpdate ()
     {
-		if (!roomManager.roomTransition && !StateSaver.gameState.paused)
+		if (!StateSaver.gameState.paused)
         {
-			Vector2 goingTo = reacting ? reactPos : target.transform.position;
-			transform.position = Vector2.MoveTowards(transform.position, new Vector3(goingTo.x, goingTo.y, 0), 0.03f);
+			Vector3 goingTo = reacting ? reactPos : target.transform.position;
+			transform.position = Vector3.MoveTowards(transform.position, new Vector3(goingTo.x, goingTo.y, 0), 0.03f);
         }
     }
 		

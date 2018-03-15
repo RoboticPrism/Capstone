@@ -11,6 +11,7 @@ public class Drone : MonoBehaviour {
     protected Rigidbody2D rb;
 	protected Vector2 velToAdd = Vector2.zero;
 	protected GameObject alertIcon;
+	protected bool cooldown = false;
     // Use this for initialization
     protected void Start () {
         rb = GetComponent<Rigidbody2D>();
@@ -43,10 +44,16 @@ public class Drone : MonoBehaviour {
 
     protected void FixedUpdate ()
     {
-		if (seesPlayer && suspicion < maxSuspicion && !StateSaver.gameState.paused)
+		if (seesPlayer && (suspicion < maxSuspicion) && !StateSaver.gameState.paused)
         {
             suspicion++;
-        }
+		} else if(cooldown){
+			if (suspicion > 0) {
+				suspicion--;
+			} else {
+				cooldown = false;
+			}
+		} 
     }
 
     public void PlayerEnteredSight ()
@@ -64,7 +71,7 @@ public class Drone : MonoBehaviour {
     public IEnumerator Cooldown()
     {
         yield return new WaitForSeconds(3);
-        suspicion = 0;
+		cooldown = true;
     }
 
     public void SpawnHunter()
