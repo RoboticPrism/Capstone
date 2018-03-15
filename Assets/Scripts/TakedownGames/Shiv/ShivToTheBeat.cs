@@ -7,7 +7,7 @@ public class ShivToTheBeat : TakedownGame {
 
 	public List<Sprite> possibleKeys;
 
-	private DIFFICULTY gameDiff = DIFFICULTY.MAKE_IT_STOP;
+	private DIFFICULTY gameDiff = DIFFICULTY.EASY;
 	private STYLE gameStyle = STYLE.RAIN;
 
 	private bool playing = false;
@@ -23,7 +23,7 @@ public class ShivToTheBeat : TakedownGame {
 
 	private GameObject toHitStartBox;
 
-	private float minSepTime = 0.2f;
+	private float minSepTime = 1.0f;
 
 	private int toHitOnScreenCap = 150;
 	public GameObject toHitPrefab;
@@ -68,10 +68,10 @@ public class ShivToTheBeat : TakedownGame {
 						dropping.Enqueue (drop);
 						drop.GetComponent<ToHitScript> ().Drop ();
 						hitRelTimer = Time.time;
-						minSepTime = Random.Range (0.2f, 0.7f);
+						minSepTime = Random.Range (1.0f, 2.0f);
 					}
 				}
-				
+
 				foreach (GameObject hb in allHitboxes) {
 					if (dropping.Count > 0) {
 						hb.GetComponent<Image> ().sprite = dropping.Peek ().GetComponent<Image> ().sprite;

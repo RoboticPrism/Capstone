@@ -18,6 +18,11 @@ public class SideScrollingPlayer : Player {
 	private float pickupGap = 0.0f;
 	private bool paused = false;
 
+	public RuntimeAnimatorController idleAnim;
+	public Sprite idleSprite;
+	public Animation forwardAnim;
+	public Animation jumpAnim;
+
 	private AbilityUIControl abilityCont;
 
     // Use this for initialization
@@ -84,9 +89,9 @@ public class SideScrollingPlayer : Player {
 			}
 		}
 
-        if (rb.velocity.x > 0.01f) {
+        if (rb.velocity.x < -0.01f) {
             this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
-        } else if (rb.velocity.x < -0.01f)
+        } else if (rb.velocity.x > 0.01f)
         {
             this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
         }
