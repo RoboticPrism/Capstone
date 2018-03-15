@@ -253,6 +253,7 @@ public class SideScrollingPlayer : Player {
 	}
 
 	IEnumerator PreformTakedown(Drone target){
+		ToggleAbilityControl ();
 		StartCoroutine (blackout.FadeInBlack ());
 		bool succeeded = false;
 		StopTime ();
@@ -270,6 +271,7 @@ public class SideScrollingPlayer : Player {
 		}
 		Destroy (minigame);
 		StartTime ();
+		ToggleAbilityControl ();
 		StartCoroutine (blackout.FadeOutBlack ());
 		abilityCont.NotifyTakedown ();
 	}

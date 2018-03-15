@@ -18,8 +18,6 @@ public class PatternSquares : TakedownGame {
 
 	// Use this for initialization
 	new void Start () {
-		this.gameObject.transform.SetParent (GameObject.Find ("Canvas").transform);
-		this.gameObject.GetComponent<RectTransform> ().localPosition = Vector3.zero;
 		Red = this.gameObject.transform.Find ("Red").gameObject.GetComponent<Button>();
 		Green = this.gameObject.transform.Find ("Green").gameObject.GetComponent<Button>();
 		Blue = this.gameObject.transform.Find ("Blue").gameObject.GetComponent<Button>();

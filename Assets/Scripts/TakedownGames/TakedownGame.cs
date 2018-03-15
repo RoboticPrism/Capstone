@@ -6,6 +6,7 @@ public class TakedownGame : MonoBehaviour {
 	protected bool done = false;
 	protected bool succeeded = false;
 	protected bool waitingForInput = false;
+	protected static GameObject canvas = null;
 
 	// Use this for initialization
 	protected void Start () {
@@ -31,15 +32,23 @@ public class TakedownGame : MonoBehaviour {
 	}
 
 	public static TakedownGame GetRandGame(){
-		StateSaver.Minigames[] games = (StateSaver.Minigames[])System.Enum.GetValues (typeof(StateSaver.Minigames));
-		int l = games.Length;
-		int r = Random.Range (0, l);
-		StateSaver.Minigames cur = games [r];
+		TakedownGame TdownGame = null;
+		int l = (int)StateSaver.Minigames.num_opts;
+		int r = Random.Range (1, l);
+		StateSaver.Minigames cur = (StateSaver.Minigames)r;
 		switch (cur) {
 		case StateSaver.Minigames.PatternSquares:
-			return ((GameObject)Instantiate (Resources.Load ("Prefabs/Games/PatternSquaresPrefab"))).GetComponent<PatternSquares>();
-		default:
-			return null;
+			TdownGame = ((GameObject)Instantiate (Resources.Load ("Prefabs/Games/PatternSquaresPrefab"))).GetComponent<PatternSquares> ();
+			break;
+		case StateSaver.Minigames.ShivToTheBeat:
+			TdownGame = ((GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/ShivToTheBeat"))).GetComponent<ShivToTheBeat> ();
+			break;
 		}
+		canvas = GameObject.Find ("Canvas");
+		RectTransform canvasT = canvas.GetComponent<RectTransform> ();
+		TdownGame.transform.SetParent (canvas.transform);
+		TdownGame.transform.localPosition = Vector3.zero;
+		TdownGame.gameObject.GetComponent<RectTransform> ().sizeDelta = new Vector2(canvasT.rect.width, canvasT.rect.height);
+		return TdownGame;
 	}
 }

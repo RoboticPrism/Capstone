@@ -46,11 +46,13 @@ public class GameState {
     }
 
 	public void update(){
-		timeLeft = decayTime - (Time.time - foodTimer);
-		if (timeLeft <= 0 && foodStorage >= 0) {
-			foodStorage -= 1;
-			foodTimer = Time.time;
-		} 
+		if (!StateSaver.gameState.paused) {
+			timeLeft = decayTime - (Time.time - foodTimer);
+			if (timeLeft <= 0 && foodStorage >= 0) {
+				foodStorage -= 1;
+				foodTimer = Time.time;
+			} 
+		}
 	}
 
 	public void startup(){

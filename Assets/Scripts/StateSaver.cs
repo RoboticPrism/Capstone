@@ -8,7 +8,7 @@ using System.IO;
 //as well as handling the loading and saving of the game state
 public static class StateSaver {
 
-	public enum Minigames { PatternSquares };
+	public enum Minigames { PatternSquares = 0, ShivToTheBeat, num_opts };
 
 	public enum Area {Base=0, Jack=1, Overworld=2, SR3=3, SR5=4, BLD2=5};
 	public const string homeArea = "TestBase";
