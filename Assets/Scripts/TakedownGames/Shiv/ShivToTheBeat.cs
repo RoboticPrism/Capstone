@@ -7,8 +7,8 @@ public class ShivToTheBeat : TakedownGame {
 
 	public List<Sprite> possibleKeys;
 
-	private DIFFICULTY gameDiff = DIFFICULTY.EASY;
-	private STYLE gameStyle = STYLE.RAIN;
+	private DIFFICULTY gameDiff;
+	private STYLE gameStyle;
 
 	private bool playing = false;
 
@@ -164,13 +164,11 @@ public class ShivToTheBeat : TakedownGame {
 				print (failsRemaining);
 
 				if (failsRemaining < 0) {
-					print ("failed");
 					succeeded = false;
 					done = true;
 				}
 
 			} else {
-				print ("hmmmmm");
 				done = true;
 			}
 
@@ -201,7 +199,7 @@ public class ShivToTheBeat : TakedownGame {
 			velocity = new Vector2 (0.0f, -7.0f);
 			minSepTime = 0.1f;
 		}
-		//gameStyle = (STYLE)Random.Range (0, (int)STYLE.num_opts);
+		gameStyle = STYLE.RAIN;
 	}
 
 	private void InitHitboxes(){

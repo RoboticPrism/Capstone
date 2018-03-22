@@ -59,7 +59,7 @@ public class SideScrollingPlayer : Player {
 		} else {
 			float jump_speed = 0f;
 			float tmpSpeed = !grounded ? speed * 0.5f : speed;
-
+			rb.velocity = new Vector2(0.0f, rb.velocity.y) + velToAdd;
 			if (Input.GetKeyDown (KeyCode.Space) && grounded) {
 				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = velToAdd + new Vector2 (rb.velocity.x, jump_speed);
@@ -89,11 +89,11 @@ public class SideScrollingPlayer : Player {
 			}
 		}
 
-        if (rb.velocity.x < -0.01f) {
-            this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
-        } else if (rb.velocity.x > 0.01f)
-        {
+        if (rb.velocity.x < 0) {
             this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
+        } else if (rb.velocity.x > 0)
+        {
+            this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
         }
 	}
 
@@ -146,6 +146,12 @@ public class SideScrollingPlayer : Player {
 		}
 	}
 
+	public void ElevatorRide(Elevator target){
+		if (hasControl) {
+			StartCoroutine ("ElevatorCoroutine", target);
+		}
+	}
+
     // Fades in the blackout object, waits a bit, then moves the player to the new room
     IEnumerator WalkBetweenRoomsCoroutine(Door door)
     {
@@ -191,6 +197,49 @@ public class SideScrollingPlayer : Player {
 		roomManager.roomTransition = false;
     }
 
+	IEnumerator ElevatorCoroutine(Elevator target){
+		// Remove player control
+		roomManager = FindObjectOfType<RoomManager>();
+		Room newRoom = target.GetMyRoom();
+		roomManager.SetCurrentRoom(newRoom);
+		hasControl = false;
+		roomManager.roomTransition = true;
+		this.GetComponent<Rigidbody2D>().velocity = new Vector2(0.0f, 0.0f);
+
+		// Assign new current room
+		// Drop the blackout object over the camera
+		yield return StartCoroutine(blackout.FadeInBlack());
+
+		// Set the camera bounds to the new room
+		newRoom.SetLimits();
+
+		// Set the position to move towards (Note that we use the player's z location)
+		Vector3 goToPosition = new Vector3(target.GetMyDestination().position.x, 
+			target.GetMyDestination().position.y, this.gameObject.transform.position.z); 
+
+		// Move player to new room
+		while (Vector3.Distance(this.gameObject.transform.position, goToPosition) > 0.01f)
+		{
+			this.gameObject.transform.position = goToPosition;
+			yield return null;
+		}
+
+		rb.velocity = new Vector2 (0, 0);
+		// Wait half a second for dramatic flair
+		yield return new WaitForSeconds(0.5f);
+
+		// Pull the blackout object off the camera
+		yield return StartCoroutine(blackout.FadeOutBlack());
+
+		// Now that the old room is offscree we can clean it up
+		roomManager.CleanUpRooms();
+
+		// Reenable Control
+
+		hasControl = true;
+		roomManager.roomTransition = false;
+	}
+
 	public void EnterVent(Vent vent)
 	{
 		if (hasControl)
@@ -235,9 +284,7 @@ public class SideScrollingPlayer : Player {
 				EnterVent (other.GetComponent<Vent> ());
 			}
 		} else if (other.GetComponent<Hunter> () != null && !inVent) {
-			foodCollected = 0;
-			StartCoroutine (blackout.FadeInBlack ());
-			SceneManager.LoadSceneAsync ("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
+			StartCoroutine ("HunterAttack", other.GetComponent<Hunter> ());
 		} else if (other.GetComponent<SavePoint> () != null) {
 			other.GetComponent<SavePoint> ().revSave ();
 			abilityCont.SaveZone (true);
@@ -280,7 +327,33 @@ public class SideScrollingPlayer : Player {
 		StartTime ();
 		ToggleAbilityControl ();
 		StartCoroutine (blackout.FadeOutBlack ());
-		abilityCont.NotifyTakedown ();
+	}
+
+	IEnumerator HunterAttack(Hunter target){
+		ToggleAbilityControl ();
+		StartCoroutine (blackout.FadeInBlack ());
+		bool succeeded = false;
+		StopTime ();
+		TakedownGame minigame = TakedownGame.GetRandGame();
+		if (minigame == null) {
+			print ("No Game Received!");
+			yield break;
+		}
+		minigame.BeginGame();
+		while (!minigame.CheckFinished(ref succeeded)) {
+			yield return new WaitForSecondsRealtime (1);
+		}
+		Destroy (minigame);
+		StartTime ();
+		ToggleAbilityControl ();
+		if (succeeded) {
+			Destroy (target.gameObject);
+			StartCoroutine (blackout.FadeOutBlack ());
+		} else {
+			foodCollected = 0;
+			StartCoroutine (blackout.FadeInBlack ());
+			SceneManager.LoadSceneAsync ("OverworldExampleScene");
+		}
 	}
 
 	public void StopTime(){
@@ -296,4 +369,6 @@ public class SideScrollingPlayer : Player {
 	public void ToggleAbilityControl(){
 		abilityCont.gameObject.SetActive (!abilityCont.gameObject.activeSelf);
 	}
+
+
 }
