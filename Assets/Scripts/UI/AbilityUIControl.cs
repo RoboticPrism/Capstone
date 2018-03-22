@@ -9,9 +9,7 @@ public class AbilityUIControl : MonoBehaviour {
 	public Button SniffButton;
 	public Button TakedownButton;
 	public Button SaveButton;
-	private Text BarkText;
-	private Text SniffText;
-	private Text TakedownText;
+
 	public GameObject AbilityDescription;
 	public Text abilityDesc;
 	private CanvasGroup cg;
@@ -19,22 +17,17 @@ public class AbilityUIControl : MonoBehaviour {
 	private string sniffDesc = "Sniff - Reveals all food items in the room.";
 	private string barkDesc = "Bark - All enemies within a radius will move towards the sound.";
 	private string takedownDesc = "Takedown - Attempt to destroy an enemy when next to them.";
-	private bool takedownAvail = false;
 	private bool saveAvail;
 
 	// Use this for initialization
 	void Start () {
 		this.gameObject.transform.SetParent (GameObject.Find ("Canvas").transform);
-		BarkText = BarkButton.GetComponentInChildren<Text> ();
-		SniffText = SniffButton.GetComponentInChildren<Text> ();
-		TakedownText = TakedownButton.GetComponentInChildren<Text> ();
 		this.gameObject.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (0, 30);
 		cg = this.gameObject.transform.Find("TransparentGroup").gameObject.GetComponent<CanvasGroup> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		TakedownButton.image.color = takedownAvail ? Color.white : Color.grey;
 	}
 
 	public bool BarkAvailable(){
@@ -46,7 +39,7 @@ public class AbilityUIControl : MonoBehaviour {
 	}
 
 	public bool TakedownAvailable(){
-		return takedownAvail;
+		return true;
 	}
 
 	public bool SaveAvailable(){

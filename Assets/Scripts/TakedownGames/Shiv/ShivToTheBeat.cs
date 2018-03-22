@@ -24,14 +24,21 @@ public class ShivToTheBeat : TakedownGame {
 	private Queue<GameObject> toDrop = new Queue<GameObject> ();
 
 	private GameObject toHitStartBox;
+	private GameObject hitBoxZone;
+	private GameObject fightSim;
+	private Image playerBar;
+	private Image droneBar;
+	private Image hunterBar;
 
 	private float minSepTime;
 
 	private int toHitOnScreenCap = 10;
 
 	private Vector2 velocity = Vector2.zero;
-
-	private int failsRemaining = 5;
+	private float maxFails = 5;
+	private float failsRemaining = 5;
+	private float numObj = 0;
+	private float numObjHit = 0;
 	public GameObject toHitPrefab;
 
 	private enum DIFFICULTY
@@ -56,6 +63,14 @@ public class ShivToTheBeat : TakedownGame {
 	new void Start () {
 		
 		InitConditions();
+		fightSim = (GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/FightSimulator"));
+		fightSim.transform.SetParent (this.gameObject.transform);
+		fightSim.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (0, 0);
+		playerBar = fightSim.transform.Find ("Dog").transform.Find ("DogBar").GetComponent<Image>();
+		droneBar = fightSim.transform.Find ("Drone").transform.Find ("DroneBar").GetComponent<Image>();
+		hunterBar = fightSim.transform.Find ("Hunter").transform.Find ("HunterBar").GetComponent<Image>();
+		droneBar.transform.parent.gameObject.SetActive (drone);
+		hunterBar.transform.parent.gameObject.SetActive (!drone);
 		InitHitboxes();
 		InitPool ();
 		hitRelTimer = Time.time;
@@ -130,7 +145,6 @@ public class ShivToTheBeat : TakedownGame {
 				} 
 				if (Input.GetKeyDown (KeyCode.DownArrow)) {
 					if (!CheckHit ("down arrow")) {
-						print ("hit");
 						failsRemaining--;
 					}
 				} 
@@ -141,13 +155,11 @@ public class ShivToTheBeat : TakedownGame {
 				} 
 				if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 					if (!CheckHit ("left arrow")) {
-						print ("hit");
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.RightArrow)) {
 					if (!CheckHit ("right arrow")) {
-						print ("hit");
 						failsRemaining--;
 					}
 				} 
@@ -161,7 +173,12 @@ public class ShivToTheBeat : TakedownGame {
 						failsRemaining--;
 					}
 				}
-				print (failsRemaining);
+				if (drone) {
+					droneBar.fillAmount = numObjHit / numObj;
+				} else {
+					hunterBar.fillAmount = numObjHit / numObj;
+				}
+				playerBar.fillAmount = failsRemaining / maxFails;
 
 				if (failsRemaining < 0) {
 					succeeded = false;
@@ -184,26 +201,25 @@ public class ShivToTheBeat : TakedownGame {
 		int weight = Random.Range (0, 10);
 		if (weight <= 3) {
 			gameDiff = DIFFICULTY.EASY;
-			velocity = new Vector2 (0.0f, -3.0f);
+			velocity = new Vector2 (0.0f, -5.0f);
 			minSepTime = 0.9f;
 		} else if(weight <= 6){
 			gameDiff = DIFFICULTY.MEDIUM;
-			velocity = new Vector2 (0.0f, -4.0f);
+			velocity = new Vector2 (0.0f, -7.0f);
 			minSepTime = 0.6f;
 		} else if(weight <= 8){
 			gameDiff = DIFFICULTY.HARD;
-			velocity = new Vector2 (0.0f, -5.0f);
+			velocity = new Vector2 (0.0f, -10.0f);
 			minSepTime = 0.3f;
 		} else{
 			gameDiff = DIFFICULTY.MAKE_IT_STOP;
-			velocity = new Vector2 (0.0f, -7.0f);
+			velocity = new Vector2 (0.0f, -15.0f);
 			minSepTime = 0.1f;
 		}
 		gameStyle = STYLE.RAIN;
 	}
 
 	private void InitHitboxes(){
-		GameObject hitBoxZone = null;
 		switch (gameStyle) {
 		case STYLE.RAIN:
 			hitBoxZone = (GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/RainHitboxes"));
@@ -228,14 +244,14 @@ public class ShivToTheBeat : TakedownGame {
 	}
 
 	private void InitPool(){
-		int numObj = ((gameDiff == DIFFICULTY.MAKE_IT_STOP) ? 50 : (((int)gameDiff + 1) * 10)); 
+		numObj = ((gameDiff == DIFFICULTY.MAKE_IT_STOP) ? 50 : (((int)gameDiff + 1) * 10)); 
 		for (int i = 0; i < numObj; i++) {
 			GameObject toHit = (GameObject)Instantiate (toHitPrefab);
 			toHit.transform.SetParent(toHitStartBox.transform);
 			int spriteInd = Random.Range (0, constantHitboxes.Length);
 			int hitboxInd = spriteInd;
 			int randChance = Random.Range (1, 101);
-			if (randChance == 100) {
+			if (randChance > 95) {
 				spriteInd = Random.Range (0, possibleKeys.Count);
 				toHit.GetComponent<Image> ().sprite = possibleKeys [spriteInd % (possibleKeys.Count)];
 			} else {
@@ -253,14 +269,19 @@ public class ShivToTheBeat : TakedownGame {
 
 		if (first.GetComponent<Image> ().sprite.name == keyHit && first.GetComponent<ToHitScript>().HitSuccess()) {
 			hitOK = true;
-			Destroy (dropping.Dequeue ());
+
+			GameObject toDest = dropping.Dequeue ();
+			toDest.GetComponent<ToHitScript> ().flagForDest = true;
+			numObjHit++;
+			Destroy (toDest);
 		}
 		return hitOK;
 	}
 
 	public void OffScreen(){
-		succeeded = false;
-		done = true;
+		failsRemaining--;
+		GameObject toDest = dropping.Dequeue ();
+		Destroy (toDest);
 	}
 
 	void OnDestroy(){
@@ -275,7 +296,9 @@ public class ShivToTheBeat : TakedownGame {
 		for (int i = 0; i < allHitboxes.Count; i++) {
 			Destroy (allHitboxes [i]);
 		}
-
+		Destroy (fightSim);
+		Destroy (hitBoxZone);
 		Destroy(toHitStartBox);
+		Destroy (this.gameObject);
 	}
 }

@@ -58,15 +58,14 @@ public class SideScrollingPlayer : Player {
 			rb.velocity = Vector2.zero + velToAdd;
 		} else {
 			float jump_speed = 0f;
-			float tmpSpeed = !grounded ? speed * 0.5f : speed;
 			rb.velocity = new Vector2(0.0f, rb.velocity.y) + velToAdd;
-			if (Input.GetKeyDown (KeyCode.Space) && grounded) {
+			if ((Input.GetKeyDown (KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && grounded) {
 				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = velToAdd + new Vector2 (rb.velocity.x, jump_speed);
-			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < tmpSpeed) {
-				rb.velocity = velToAdd + new Vector2 (tmpSpeed, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -tmpSpeed) {
-				rb.velocity = velToAdd + new Vector2 (-tmpSpeed, rb.velocity.y);
+			} else if ((Input.GetKey (KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && rb.velocity.x < speed) {
+				rb.velocity = velToAdd + new Vector2 (speed, rb.velocity.y);
+			} else if ((Input.GetKey (KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && rb.velocity.x > -speed) {
+				rb.velocity = velToAdd + new Vector2 (-speed, rb.velocity.y);
 			}
 
 			if (dialogueAvail && Input.GetKey (KeyCode.F)) {
@@ -316,6 +315,7 @@ public class SideScrollingPlayer : Player {
 			print ("No Game Received!");
 			yield break;
 		}
+		minigame.drone = true;
 		minigame.BeginGame();
 		while (!minigame.CheckFinished(ref succeeded)) {
 			yield return new WaitForSecondsRealtime (1);
@@ -339,6 +339,7 @@ public class SideScrollingPlayer : Player {
 			print ("No Game Received!");
 			yield break;
 		}
+		minigame.drone = false;
 		minigame.BeginGame();
 		while (!minigame.CheckFinished(ref succeeded)) {
 			yield return new WaitForSecondsRealtime (1);

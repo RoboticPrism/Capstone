@@ -15,6 +15,7 @@ public class ToHitScript : MonoBehaviour {
 
 	public Vector3 velocity = Vector3.zero;
 
+	public bool flagForDest = false;
 
 	// Use this for initialization
 	void Start () {
@@ -36,7 +37,7 @@ public class ToHitScript : MonoBehaviour {
 	}
 
 	public void OnTriggerExit2D(Collider2D other){
-		if (other.GetComponent<HitBoxScript>() != null && !hitSuccess) {
+		if (other.GetComponent<HitBoxScript>() != null && !flagForDest) {
 			hitSuccess = false;
 			missed ();
 		}
