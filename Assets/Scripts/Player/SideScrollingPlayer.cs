@@ -100,11 +100,18 @@ public class SideScrollingPlayer : Player {
 	}
 
 	void FixedUpdate(){
-//		float dist = new Vector2(rb.velocity.x, 0).magnitude * Time.fixedDeltaTime;
-//		RaycastHit2D[] inside = Physics2D.BoxCastAll (((Vector2)this.transform.position), new Vector2(1, 1), 0, (Vector2)rb.velocity, dist, 1 << LayerMask.NameToLayer("Default"));
-//		if(inside.Length > 0){
-//			rb.velocity = new Vector2 (0, rb.velocity.y);
-//		}
+		float dist = new Vector2(rb.velocity.x, 0).magnitude * Time.fixedDeltaTime;
+		RaycastHit2D[] inside = Physics2D.BoxCastAll (((Vector2)this.transform.position), new Vector2(1, 1), 0, (Vector2)rb.velocity, dist);
+		bool willCollide = false;
+		foreach (RaycastHit2D hit in inside) {
+			willCollide = willCollide || !hit.collider.isTrigger;
+			if (willCollide) {
+				break;
+			}
+		}
+		if(willCollide){
+			rb.velocity = new Vector2 (0, rb.velocity.y);
+		}
 	}
 
 	private void checkOutOfBounds(){
