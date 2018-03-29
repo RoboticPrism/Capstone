@@ -37,23 +37,25 @@ public class SideScrollingPlayer : Player {
 	// Update is called once per frame
 	new void Update () {
 		base.Update ();
-		checkOutOfBounds ();
-
-		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
-		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
-		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+		if (!paused) {
+			checkOutOfBounds ();
+		}
+		LayerMask ignore = ~(1 << LayerMask.NameToLayer ("Detection"));
+		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
+		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
+		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
 
 		Vector2 velToAdd = Vector2.zero;
-		if (left.rigidbody != null && left.rigidbody.isKinematic) {
+		if (left.rigidbody != null && left.rigidbody.isKinematic && !left.collider.isTrigger) {
 			velToAdd = left.rigidbody.velocity;
-		} else if (middle.rigidbody && middle.rigidbody.isKinematic) {
+		} else if (middle.rigidbody != null && middle.rigidbody.isKinematic && !middle.collider.isTrigger) {
 			velToAdd = middle.rigidbody.velocity;
-		} else if (right.rigidbody && right.rigidbody.isKinematic) {
+		} else if (right.rigidbody != null && right.rigidbody.isKinematic && !right.collider.isTrigger) {
 			velToAdd = right.rigidbody.velocity;
 		}
 
 
-		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
+		bool grounded = (left && left.collider && !left.collider.isTrigger) || (middle && middle.collider && !middle.collider.isTrigger) || (right && right.collider && !right.collider.isTrigger);
 		if (paused || !hasControl) {
 			rb.velocity = Vector2.zero + velToAdd;
 		} else {
@@ -88,12 +90,21 @@ public class SideScrollingPlayer : Player {
 			}
 		}
 
+
         if (rb.velocity.x < 0) {
             this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
         } else if (rb.velocity.x > 0)
         {
             this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
         }
+	}
+
+	void FixedUpdate(){
+//		float dist = new Vector2(rb.velocity.x, 0).magnitude * Time.fixedDeltaTime;
+//		RaycastHit2D[] inside = Physics2D.BoxCastAll (((Vector2)this.transform.position), new Vector2(1, 1), 0, (Vector2)rb.velocity, dist, 1 << LayerMask.NameToLayer("Default"));
+//		if(inside.Length > 0){
+//			rb.velocity = new Vector2 (0, rb.velocity.y);
+//		}
 	}
 
 	private void checkOutOfBounds(){
@@ -159,6 +170,7 @@ public class SideScrollingPlayer : Player {
 		Room newRoom = door.GetDestinationDoor().GetMyRoom();
 		roomManager.SetCurrentRoom(newRoom);
         hasControl = false;
+		paused = true;
 		roomManager.roomTransition = true;
         this.GetComponent<Rigidbody2D>().velocity = new Vector2(0.0f, 0.0f);
         
@@ -193,6 +205,7 @@ public class SideScrollingPlayer : Player {
         // Reenable Control
 
         hasControl = true;
+		paused = false;
 		roomManager.roomTransition = false;
     }
 
@@ -353,7 +366,7 @@ public class SideScrollingPlayer : Player {
 		} else {
 			foodCollected = 0;
 			StartCoroutine (blackout.FadeInBlack ());
-			SceneManager.LoadSceneAsync ("OverworldExampleScene");
+			SceneManager.LoadSceneAsync (StateSaver.gameState.curArea.name);
 		}
 	}
 

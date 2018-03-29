@@ -178,6 +178,7 @@ public class RoomManager : MonoBehaviour {
         {
             instantiatedHunter = Instantiate(hunterPrefab);
             instantiatedHunter.transform.position = new Vector3(currentRoom.roomSizeMax.x, currentRoom.roomSizeMax.y, 0);
+			instantiatedHunter.transform.SetParent (currentRoom.transform);
         }
     }
 }

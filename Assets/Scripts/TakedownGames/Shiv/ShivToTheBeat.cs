@@ -30,6 +30,8 @@ public class ShivToTheBeat : TakedownGame {
 	private Image droneBar;
 	private Image hunterBar;
 
+	private Image enemyBar;
+
 	private float minSepTime;
 
 	private int toHitOnScreenCap = 10;
@@ -61,7 +63,7 @@ public class ShivToTheBeat : TakedownGame {
 
 	// Use this for initialization
 	new void Start () {
-		
+
 		InitConditions();
 		fightSim = (GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/FightSimulator"));
 		fightSim.transform.SetParent (this.gameObject.transform);
@@ -193,11 +195,9 @@ public class ShivToTheBeat : TakedownGame {
 						failsRemaining--;
 					}
 				}
-				if (drone) {
-					droneBar.fillAmount = numObjHit / numObj;
-				} else {
-					hunterBar.fillAmount = (numObj - numObjHit) / numObj;
-				}
+
+				Image bar = drone ? droneBar : hunterBar;
+				bar.fillAmount = (numObj - numObjHit) / numObj;
 				playerBar.fillAmount = failsRemaining / maxFails;
 
 				if (failsRemaining < 0) {
@@ -285,15 +285,17 @@ public class ShivToTheBeat : TakedownGame {
 
 	private bool CheckHit(string keyHit){
 		bool hitOK = false;
-		GameObject first = dropping.Peek();
+		if (dropping.Count > 0) {
+			GameObject first = dropping.Peek ();
 
-		if (first.GetComponent<Image> ().sprite.name == keyHit && first.GetComponent<ToHitScript>().HitSuccess()) {
-			hitOK = true;
+			if (first.GetComponent<Image> ().sprite.name == keyHit && first.GetComponent<ToHitScript> ().HitSuccess ()) {
+				hitOK = true;
 
-			GameObject toDest = dropping.Dequeue ();
-			toDest.GetComponent<ToHitScript> ().flagForDest = true;
-			numObjHit++;
-			Destroy (toDest);
+				GameObject toDest = dropping.Dequeue ();
+				toDest.GetComponent<ToHitScript> ().flagForDest = true;
+				numObjHit++;
+				Destroy (toDest);
+			}
 		}
 		return hitOK;
 	}

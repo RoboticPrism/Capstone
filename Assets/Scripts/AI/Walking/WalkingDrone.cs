@@ -46,6 +46,7 @@ public class WalkingDrone : Drone
 	{
 		if (!reacting) {
 			reacting = true;
+			print ("drone react");
 			bool tmp = Vector3.Angle (transform.InverseTransformPoint (point), transform.position - transform.InverseTransformPoint (point)) > 90;
 			walk = false;
 			if (!turning) {

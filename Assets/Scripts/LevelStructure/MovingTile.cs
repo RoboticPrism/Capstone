@@ -7,7 +7,6 @@ public class MovingTile : MonoBehaviour {
 	Vector3 point1;
 	Vector3 point2;
 	private const float travelTime = 5.0f;
-	private GameObject floorTile;
 	private Vector2 vel;
 	bool towPt1 = true;
 	bool doneMove = false;
@@ -20,7 +19,6 @@ public class MovingTile : MonoBehaviour {
 	void Start () {
 		this.point1 = transform.Find ("Point 1").position;
 		this.point2 = transform.Find ("Point 2").position;
-		this.floorTile = transform.Find ("Floor Tile").gameObject;
 	}
 
 	// Update is called once per frame
@@ -38,9 +36,9 @@ public class MovingTile : MonoBehaviour {
 				matched = true;
 			}
 			Vector3 tmpPt = towPt1 ? point1 : point2;
-			if (Vector3.Distance (floorTile.transform.position, tmpPt) >= 0.01f && !doneMove) {
-				int xcoef = (tmpPt.x - floorTile.transform.position.x) > 0 ? 1 : -1;
-				int ycoef = (tmpPt.y - floorTile.transform.position.y) > 0 ? 1 : -1;
+			if (Vector3.Distance (this.transform.position, tmpPt) >= 0.01f && !doneMove) {
+				int xcoef = (tmpPt.x - this.transform.position.x) > 0 ? 1 : -1;
+				int ycoef = (tmpPt.y - this.transform.position.y) > 0 ? 1 : -1;
 				vel = new Vector2 ((Mathf.Abs(point2.x - point1.x)/travelTime) * xcoef, (Mathf.Abs(point2.y - point1.y)/travelTime)* ycoef);
 			} else {
 				doneMove = true;
