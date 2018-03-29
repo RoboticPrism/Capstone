@@ -7,6 +7,7 @@ public class TakedownGame : MonoBehaviour {
 	protected bool succeeded = false;
 	protected bool waitingForInput = false;
 	protected static GameObject canvas = null;
+	public bool drone = false;
 
 	// Use this for initialization
 	protected void Start () {
