@@ -94,47 +94,67 @@ public class ShivToTheBeat : TakedownGame {
 				}
 
 				if (Input.GetKeyDown (KeyCode.Alpha0)) {
-					if (!CheckHit ("0")) {
+					if (!CheckHit ("zero")) {
 						failsRemaining--;
 					}
-				} 
+				}
+				if (Input.GetKeyDown (KeyCode.A)) {
+					if (!CheckHit ("Aarrow")) {
+						failsRemaining--;
+					}
+				}
+				if (Input.GetKeyDown (KeyCode.Alpha2)) {
+					if (!CheckHit ("two")) {
+						failsRemaining--;
+					}
+				}
+				if (Input.GetKeyDown (KeyCode.D)) {
+					if (!CheckHit ("Darrow")) {
+						failsRemaining--;
+					}
+				}
+				if (Input.GetKeyDown (KeyCode.S)) {
+					if (!CheckHit ("Sarrow")) {
+						failsRemaining--;
+					}
+				}
 				if (Input.GetKeyDown (KeyCode.Alpha1)) {
-					if (!CheckHit ("1")) {
+					if (!CheckHit ("one")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha3)) {
-					if (!CheckHit ("3")) {
+					if (!CheckHit ("three")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha4)) {
-					if (!CheckHit ("4")) {
+					if (!CheckHit ("four")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha5)) {
-					if (!CheckHit ("5")) {
+					if (!CheckHit ("five")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha6)) {
-					if (!CheckHit ("6")) {
+					if (!CheckHit ("six")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha7)) {
-					if (!CheckHit ("7")) {
+					if (!CheckHit ("seven")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha8)) {
-					if (!CheckHit ("8")) {
+					if (!CheckHit ("eight")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha9)) {
-					if (!CheckHit ("9")) {
+					if (!CheckHit ("nine")) {
 						failsRemaining--;
 					}
 				} 
@@ -144,7 +164,7 @@ public class ShivToTheBeat : TakedownGame {
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.DownArrow)) {
-					if (!CheckHit ("down arrow")) {
+					if (!CheckHit ("downarrow")) {
 						failsRemaining--;
 					}
 				} 
@@ -154,12 +174,12 @@ public class ShivToTheBeat : TakedownGame {
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.LeftArrow)) {
-					if (!CheckHit ("left arrow")) {
+					if (!CheckHit ("leftarrow")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.RightArrow)) {
-					if (!CheckHit ("right arrow")) {
+					if (!CheckHit ("rightarrow")) {
 						failsRemaining--;
 					}
 				} 
@@ -176,7 +196,7 @@ public class ShivToTheBeat : TakedownGame {
 				if (drone) {
 					droneBar.fillAmount = numObjHit / numObj;
 				} else {
-					hunterBar.fillAmount = numObjHit / numObj;
+					hunterBar.fillAmount = (numObj - numObjHit) / numObj;
 				}
 				playerBar.fillAmount = failsRemaining / maxFails;
 
