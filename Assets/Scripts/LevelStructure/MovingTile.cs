@@ -16,13 +16,11 @@ public class MovingTile : MonoBehaviour {
 	public bool matchX = false;
 	public bool matchY = false;
 	private bool matched = false;
-	private Rigidbody2D rb;
 	// Use this for initialization
 	void Start () {
 		this.point1 = transform.Find ("Point 1").position;
 		this.point2 = transform.Find ("Point 2").position;
 		this.floorTile = transform.Find ("Floor Tile").gameObject;
-		rb = floorTile.GetComponent<Rigidbody2D>();
 	}
 
 	// Update is called once per frame
@@ -60,10 +58,6 @@ public class MovingTile : MonoBehaviour {
 		} else {
 			vel = Vector2.zero;
 		}
-	}
-
-	void FixedUpdate(){
-		rb.MovePosition (rb.position + (vel * Time.fixedDeltaTime));
 	}
 
 	void swapDir(){

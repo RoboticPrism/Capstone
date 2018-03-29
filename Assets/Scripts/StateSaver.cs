@@ -10,14 +10,18 @@ public static class StateSaver {
 
 	public enum Minigames { PatternSquares = 0, ShivToTheBeat, num_opts };
 
-	public enum Area {Base=0, Jack=1, Overworld=2, SR3=3, SR5=4, BLD2=5};
+	public enum Area {Base=0, Jack, Overworld, SR3, SR5, BLD2, SR1, RM1, RM2, RM3};
 	public const string homeArea = "TestBase";
 	public const string overworld = "OverworldExampleScene";
 	public const string jack = "Jack's";
 	public const string sr3 = "StoryRom3";
 	public const string bld2 = "Building2";
 	public const string sr5 = "SR5";
-	public static AreaInfo[] areas = { new AreaInfo(homeArea, 0), new AreaInfo(jack, 3), new AreaInfo(overworld, 3), new AreaInfo(sr3, 1), new AreaInfo(sr5, 0), new AreaInfo(bld2, 0)};
+	public const string sr1 = "StoryRoom1";
+	public const string rm1 = "Room1";
+	public const string rm2 = "Room2";
+	public const string rm3 = "Room3";
+	public static AreaInfo[] areas = { new AreaInfo(homeArea, 0), new AreaInfo(jack, 3), new AreaInfo(overworld, 3), new AreaInfo(sr3, 1), new AreaInfo(sr5, 0), new AreaInfo(bld2, 0), new AreaInfo(sr1, 0), new AreaInfo(rm1, 0), new AreaInfo(rm2, 0), new AreaInfo(rm3, 0)};
 	public static GameState gameState;
 
     // Writes the contents of this game state to a file
