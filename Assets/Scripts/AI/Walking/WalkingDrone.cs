@@ -11,6 +11,8 @@ public class WalkingDrone : Drone
 	private bool reacting = false;
 	private bool turning = false;
 	private bool grounded = true;
+	private float barkStart = 0.0f;
+	private const float barkLength = 5.0f;
 	// Use this for initialization
 	new void Start ()
 	{
@@ -37,7 +39,7 @@ public class WalkingDrone : Drone
 	public void HitEdge ()
 	{
 		if (this.gameObject.activeInHierarchy) {
-			StopCoroutine ("TrunAround");
+			StopCoroutine ("TurnAround");
 			StartCoroutine ("TurnAround");
 		}
 	}
@@ -45,28 +47,26 @@ public class WalkingDrone : Drone
 	public void ReactToBark (Vector3 point)
 	{
 		if (!reacting) {
+			StopCoroutine("TurnAround");
 			reacting = true;
+			barkStart = Time.time;
+			print ("drone react");
 			bool tmp = Vector3.Angle (transform.InverseTransformPoint (point), transform.position - transform.InverseTransformPoint (point)) > 90;
-			walk = false;
-			if (!turning) {
-				if (tmp) {
-					transform.localScale = new Vector3 (
-						transform.localScale.x * -1,
-						transform.localScale.y,
-						transform.localScale.z);
-				}
-				walk = true;
+			//if (!turning) {
+			if (tmp) {
+				transform.localScale = new Vector3 (transform.localScale.x * -1,transform.localScale.y, transform.localScale.z);
 			}
+			//}
 			StartCoroutine ("Reacting");
 		}
 	}
 
 	IEnumerator Reacting ()
 	{
-		if (turning) {
-			yield return new WaitForSeconds (6.5f);
-		} else {
-			yield return new WaitForSeconds (5.0f);
+		float curTime = Time.time;
+		while (curTime - barkStart < barkLength) {
+			yield return new WaitForSeconds(0.5f);
+			curTime = Time.time;
 		}
 		reacting = false;
 		walk = true;
@@ -81,12 +81,14 @@ public class WalkingDrone : Drone
 		}
 		turning = true;
 		walk = false;
-		yield return new WaitForSeconds (2.0f);
-		transform.localScale = new Vector3 (
-			transform.localScale.x * -1,
-			transform.localScale.y,
-			transform.localScale.z);
-		
+		float totalWait = 0.0f;
+		while (!reacting && totalWait >= 2.0f) {
+			totalWait += 0.5f;
+			yield return new WaitForSeconds (0.5f);
+		}
+		if(!reacting){
+			transform.localScale = new Vector3 (transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+		}
 		walk = true;
 		turning = false;
 		
