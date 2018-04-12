@@ -14,7 +14,7 @@ public class ShivToTheBeat : TakedownGame {
 
 	private List<GameObject> allHitboxes = new List<GameObject>();
 
-	public Sprite[] constantHitboxes = new Sprite[3];
+	public Sprite[] constantHitboxes = new Sprite[4];
 
 	private float hitRelTimer;
 
@@ -26,11 +26,15 @@ public class ShivToTheBeat : TakedownGame {
 	private GameObject toHitStartBox;
 	private GameObject hitBoxZone;
 	private GameObject fightSim;
+
 	private Image playerBar;
 	private Image droneBar;
 	private Image hunterBar;
+	private Image enemyBar;
 
+	private float sepTime;
 	private float minSepTime;
+	private float maxSepTime;
 
 	private int toHitOnScreenCap = 10;
 
@@ -61,7 +65,7 @@ public class ShivToTheBeat : TakedownGame {
 
 	// Use this for initialization
 	new void Start () {
-		
+
 		InitConditions();
 		fightSim = (GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/FightSimulator"));
 		fightSim.transform.SetParent (this.gameObject.transform);
@@ -71,7 +75,7 @@ public class ShivToTheBeat : TakedownGame {
 		hunterBar = fightSim.transform.Find ("Hunter").transform.Find ("HunterBar").GetComponent<Image>();
 		droneBar.transform.parent.gameObject.SetActive (drone);
 		hunterBar.transform.parent.gameObject.SetActive (!drone);
-		InitHitboxes();
+		InitHitboxes(canvas.GetComponent<RectTransform> ().rect.width);
 		InitPool ();
 		hitRelTimer = Time.time;
 		succeeded = true;
@@ -89,52 +93,72 @@ public class ShivToTheBeat : TakedownGame {
 						dropping.Enqueue (drop);
 						drop.GetComponent<ToHitScript> ().Drop ();
 						hitRelTimer = Time.time;
-						minSepTime = Random.Range (1.0f, 2.0f);
+						sepTime = Random.Range (minSepTime, maxSepTime);
 					}
 				}
 
 				if (Input.GetKeyDown (KeyCode.Alpha0)) {
-					if (!CheckHit ("0")) {
+					if (!CheckHit ("zero")) {
 						failsRemaining--;
 					}
-				} 
+				}
+				if (Input.GetKeyDown (KeyCode.A)) {
+					if (!CheckHit ("Aarrow")) {
+						failsRemaining--;
+					}
+				}
+				if (Input.GetKeyDown (KeyCode.Alpha2)) {
+					if (!CheckHit ("two")) {
+						failsRemaining--;
+					}
+				}
+				if (Input.GetKeyDown (KeyCode.D)) {
+					if (!CheckHit ("Darrow")) {
+						failsRemaining--;
+					}
+				}
+				if (Input.GetKeyDown (KeyCode.S)) {
+					if (!CheckHit ("Sarrow")) {
+						failsRemaining--;
+					}
+				}
 				if (Input.GetKeyDown (KeyCode.Alpha1)) {
-					if (!CheckHit ("1")) {
+					if (!CheckHit ("one")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha3)) {
-					if (!CheckHit ("3")) {
+					if (!CheckHit ("three")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha4)) {
-					if (!CheckHit ("4")) {
+					if (!CheckHit ("four")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha5)) {
-					if (!CheckHit ("5")) {
+					if (!CheckHit ("five")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha6)) {
-					if (!CheckHit ("6")) {
+					if (!CheckHit ("six")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha7)) {
-					if (!CheckHit ("7")) {
+					if (!CheckHit ("seven")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha8)) {
-					if (!CheckHit ("8")) {
+					if (!CheckHit ("eight")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.Alpha9)) {
-					if (!CheckHit ("9")) {
+					if (!CheckHit ("nine")) {
 						failsRemaining--;
 					}
 				} 
@@ -144,7 +168,12 @@ public class ShivToTheBeat : TakedownGame {
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.DownArrow)) {
-					if (!CheckHit ("down arrow")) {
+					if (!CheckHit ("downarrow")) {
+						failsRemaining--;
+					}
+				} 
+				if (Input.GetKeyDown (KeyCode.UpArrow)) {
+					if (!CheckHit ("uparrow")) {
 						failsRemaining--;
 					}
 				} 
@@ -154,12 +183,12 @@ public class ShivToTheBeat : TakedownGame {
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.LeftArrow)) {
-					if (!CheckHit ("left arrow")) {
+					if (!CheckHit ("leftarrow")) {
 						failsRemaining--;
 					}
 				} 
 				if (Input.GetKeyDown (KeyCode.RightArrow)) {
-					if (!CheckHit ("right arrow")) {
+					if (!CheckHit ("rightarrow")) {
 						failsRemaining--;
 					}
 				} 
@@ -173,11 +202,9 @@ public class ShivToTheBeat : TakedownGame {
 						failsRemaining--;
 					}
 				}
-				if (drone) {
-					droneBar.fillAmount = numObjHit / numObj;
-				} else {
-					hunterBar.fillAmount = numObjHit / numObj;
-				}
+
+				Image bar = drone ? droneBar : hunterBar;
+				bar.fillAmount = (numObj - numObjHit) / numObj;
 				playerBar.fillAmount = failsRemaining / maxFails;
 
 				if (failsRemaining < 0) {
@@ -187,6 +214,7 @@ public class ShivToTheBeat : TakedownGame {
 
 			} else {
 				done = true;
+				succeeded = (numObj - numObjHit) <= 0;
 			}
 
 		}
@@ -198,28 +226,38 @@ public class ShivToTheBeat : TakedownGame {
 	}
 
 	private void InitConditions(){
+		print ("TDOWN START STATS:\n");
 		int weight = Random.Range (0, 10);
+		print ("Weight: " + weight + "\n");
 		if (weight <= 3) {
 			gameDiff = DIFFICULTY.EASY;
+			print ("Diff: EASY(0-3)\n");
 			velocity = new Vector2 (0.0f, -5.0f);
 			minSepTime = 0.9f;
+			maxSepTime = 1.7f;
 		} else if(weight <= 6){
 			gameDiff = DIFFICULTY.MEDIUM;
+			print ("Diff: Medium(4-6)\n");
 			velocity = new Vector2 (0.0f, -7.0f);
 			minSepTime = 0.6f;
+			maxSepTime = 1.4f;
 		} else if(weight <= 8){
 			gameDiff = DIFFICULTY.HARD;
+			print ("Diff: Hard(7-8)\n");
 			velocity = new Vector2 (0.0f, -10.0f);
 			minSepTime = 0.3f;
+			maxSepTime = 1.1f;
 		} else{
 			gameDiff = DIFFICULTY.MAKE_IT_STOP;
+			print ("Diff: MIS(9)\n");
 			velocity = new Vector2 (0.0f, -15.0f);
 			minSepTime = 0.1f;
+			maxSepTime = 0.9f;
 		}
 		gameStyle = STYLE.RAIN;
 	}
 
-	private void InitHitboxes(){
+	private void InitHitboxes(float canvWidth){
 		switch (gameStyle) {
 		case STYLE.RAIN:
 			hitBoxZone = (GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/RainHitboxes"));
@@ -238,9 +276,18 @@ public class ShivToTheBeat : TakedownGame {
 
 			break;
 		}
+
 		foreach (Transform hb in hitBoxZone.transform) {
 			allHitboxes.Add (hb.gameObject);
 		}
+		float hwid = canvWidth/2;
+		float spacing = canvWidth / allHitboxes.Count;
+		float curX = -hwid + (spacing / 2);
+		for (int i = 0; i < allHitboxes.Count; i++) {
+			allHitboxes[i].gameObject.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (curX, allHitboxes[i].gameObject.GetComponent<RectTransform> ().anchoredPosition.y);
+			curX += spacing;
+		}
+
 	}
 
 	private void InitPool(){
@@ -265,15 +312,17 @@ public class ShivToTheBeat : TakedownGame {
 
 	private bool CheckHit(string keyHit){
 		bool hitOK = false;
-		GameObject first = dropping.Peek();
+		if (dropping.Count > 0) {
+			GameObject first = dropping.Peek ();
 
-		if (first.GetComponent<Image> ().sprite.name == keyHit && first.GetComponent<ToHitScript>().HitSuccess()) {
-			hitOK = true;
+			if (first.GetComponent<Image> ().sprite.name == keyHit && first.GetComponent<ToHitScript> ().HitSuccess ()) {
+				hitOK = true;
 
-			GameObject toDest = dropping.Dequeue ();
-			toDest.GetComponent<ToHitScript> ().flagForDest = true;
-			numObjHit++;
-			Destroy (toDest);
+				GameObject toDest = dropping.Dequeue ();
+				toDest.GetComponent<ToHitScript> ().flagForDest = true;
+				numObjHit++;
+				Destroy (toDest);
+			}
 		}
 		return hitOK;
 	}
