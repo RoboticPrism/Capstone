@@ -67,13 +67,13 @@ public class MainMenu : MonoBehaviour {
 		StateSaver.Reset ();
 		StartCoroutine(bout.FadeInBlack());
 		StateSaver.Save();
-		SceneManager.LoadSceneAsync(StateSaver.areas[(int)StateSaver.Area.Base].name);
+		SceneManager.LoadSceneAsync(StateSaver.areaNames[(int)StateSaver.Area.Base]);
 	}
 
 	public void LoadGameClicked(){
 		StartCoroutine(bout.FadeInBlack());
 		StateSaver.Save();
-		SceneManager.LoadSceneAsync(StateSaver.homeArea);
+		SceneManager.LoadSceneAsync(StateSaver.areaNames[(int)StateSaver.Area.Overworld]);
 	}
 
 	public void SettingsClicked(){

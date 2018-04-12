@@ -10,8 +10,8 @@ public class AreaInfo
     public int foodCount;
 
 
-	public AreaInfo(string name, int foodcount){
-		this.name = name;
+	public AreaInfo(StateSaver.Area name, int foodcount){
+		this.name = StateSaver.areaNames[(int)name];
 		this.foodCount = foodcount;
 	}
 
