@@ -8,6 +8,7 @@ public class Hunter : MonoBehaviour {
     RoomManager roomManager;
 	private bool reacting = false;
 	private Vector3 reactPos;
+	public bool paused = false;
 	// Use this for initialization
 	void Start () {
         target = FindObjectOfType<SideScrollingPlayer>();
@@ -21,7 +22,7 @@ public class Hunter : MonoBehaviour {
 
     void FixedUpdate ()
     {
-		if (!StateSaver.gameState.paused)
+		if (!StateSaver.gameState.paused && !paused)
         {
 			Vector3 goingTo = reacting ? reactPos : target.transform.position;
 			transform.position = Vector3.MoveTowards(transform.position, new Vector3(goingTo.x, goingTo.y, 0), 0.03f);
@@ -40,7 +41,6 @@ public class Hunter : MonoBehaviour {
 
 	IEnumerator Reacting ()
 	{
-
 		yield return new WaitForSeconds (5.0f);
 		reacting = false;
 	}
