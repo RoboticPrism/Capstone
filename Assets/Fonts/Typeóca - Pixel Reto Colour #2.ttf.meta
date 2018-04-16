@@ -1,0 +1,27 @@
+fileFormatVersion: 2
+guid: ca4362a164c4f4941b046532301d3918
+timeCreated: 1523908273
+licenseType: Free
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Pixel Reto
+  fontNames:
+  - Pixel Reto
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 5359f9b3dc982e94fa4fac38066f9769, type: 3}
+  - {fileID: 12800000, guid: 4e91895e88d01e640bd69a65fe806470, type: 3}
+  - {fileID: 12800000, guid: 12a3546e708ef4c41b4845b559c4e5ac, type: 3}
+  - {fileID: 12800000, guid: ed299ecf5f928f54c9e53ddbca8037ad, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
