@@ -174,6 +174,7 @@ public class SideScrollingPlayer : Player {
     {
         // Remove player control
 		roomManager = FindObjectOfType<RoomManager>();
+		roomManager.currentRoom.TogHuntPause (true);
 		Room newRoom = door.GetDestinationDoor().GetMyRoom();
 		roomManager.SetCurrentRoom(newRoom);
         hasControl = false;
@@ -213,6 +214,7 @@ public class SideScrollingPlayer : Player {
 
         hasControl = true;
 		paused = false;
+		roomManager.currentRoom.TogHuntPause (false);
 		roomManager.roomTransition = false;
     }
 

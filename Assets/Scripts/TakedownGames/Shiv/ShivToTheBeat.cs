@@ -39,7 +39,7 @@ public class ShivToTheBeat : TakedownGame {
 	private int toHitOnScreenCap = 10;
 
 	private Vector2 velocity = Vector2.zero;
-	private float maxFails = 5;
+	private float maxFails = 6;
 	private float failsRemaining = 5;
 	private float numObj = 0;
 	private float numObjHit = 0;
