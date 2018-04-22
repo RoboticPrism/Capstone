@@ -27,20 +27,23 @@ public class Room : MonoBehaviour {
 
     public RoomManager roomManager;
 
+	public Hunter hunterPrefab = null;
+	public Hunter instantiatedHunter = null;
+
 	// Use this for initialization
 	void Awake ()
     {
         roomManager = FindObjectOfType<RoomManager>();
         // Calulcate the min and max of this room using the combined colliders
-        Collider2D[] colliders2D = GetComponentsInChildren<Collider2D>();
-        Bounds colBounds = new Bounds(transform.position, Vector3.zero);
-        foreach (Collider2D col in colliders2D)
+		SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+        Bounds rendBounds = new Bounds(transform.position, Vector3.zero);
+		foreach (SpriteRenderer rend in renderers)
         {
-            colBounds.Encapsulate(col.bounds);
+            rendBounds.Encapsulate(rend.bounds);
         }
 
-        roomSizeMin = new Vector2(colBounds.min.x, colBounds.min.y);
-        roomSizeMax = new Vector2(colBounds.max.x, colBounds.max.y);
+		roomSizeMin = new Vector2(rendBounds.min.x, rendBounds.min.y);
+		roomSizeMax = new Vector2(rendBounds.max.x, rendBounds.max.y);
 
 		FindAllRelevantRoomObjsRec (this.gameObject);
 	}
@@ -138,8 +141,19 @@ public class Room : MonoBehaviour {
 		return sniffables;
 	}
 
+	public void TogHuntPause(bool pause){
+		if (this.instantiatedHunter != null) {
+			this.instantiatedHunter.paused = pause;
+		}
+	}
+
     public void SpawnHunter()
     {
-        roomManager.SpawnHunter(this);
-    }
+		if (instantiatedHunter == null)
+		{
+			instantiatedHunter = Instantiate(hunterPrefab);
+			instantiatedHunter.transform.position = new Vector3(this.roomSizeMax.x, this.roomSizeMax.y, 0);
+			instantiatedHunter.transform.SetParent (this.transform);
+		}
+	}
 }

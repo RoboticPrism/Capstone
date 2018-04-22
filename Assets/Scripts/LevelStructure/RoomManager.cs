@@ -22,7 +22,6 @@ public class RoomManager : MonoBehaviour {
     public bool roomTransition = false;
 
     public Hunter hunterPrefab;
-    public Hunter instantiatedHunter;
 
     // Use this for initialization
     void Start ()
@@ -30,6 +29,7 @@ public class RoomManager : MonoBehaviour {
 		Room[] getRooms = Object.FindObjectsOfType<Room> ();
 
 		foreach (Room r in getRooms) {
+			r.hunterPrefab = this.hunterPrefab;
 			allRooms.Add(r);
 			if (r.spawnRoom) {
 				SetCurrentRoom(r);
@@ -172,12 +172,13 @@ public class RoomManager : MonoBehaviour {
         }
     } 
 
-    public void SpawnHunter(Room currentRoom)
-    {
-        if (instantiatedHunter == null)
-        {
-            instantiatedHunter = Instantiate(hunterPrefab);
-            instantiatedHunter.transform.position = new Vector3(currentRoom.roomSizeMax.x, currentRoom.roomSizeMax.y, 0);
-        }
-    }
+//    public void SpawnHunter(Room currentRoom)
+//    {
+////        if (instantiatedHunter == null)
+////        {
+////            instantiatedHunter = Instantiate(hunterPrefab);
+////            instantiatedHunter.transform.position = new Vector3(currentRoom.roomSizeMax.x, currentRoom.roomSizeMax.y, 0);
+////			instantiatedHunter.transform.SetParent (currentRoom.transform);
+////        }
+//    }
 }

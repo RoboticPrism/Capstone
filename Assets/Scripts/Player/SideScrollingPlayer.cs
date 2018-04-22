@@ -37,36 +37,37 @@ public class SideScrollingPlayer : Player {
 	// Update is called once per frame
 	new void Update () {
 		base.Update ();
-		checkOutOfBounds ();
-
-		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
-		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
-		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f);
+		if (!paused) {
+			checkOutOfBounds ();
+		}
+		LayerMask ignore = ~(1 << LayerMask.NameToLayer ("Detection"));
+		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
+		RaycastHit2D middle = Physics2D.Raycast (new Vector3(transform.position.x, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
+		RaycastHit2D right = Physics2D.Raycast (new Vector3(transform.position.x + this.GetComponent<BoxCollider2D> ().bounds.extents.x + 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
 
 		Vector2 velToAdd = Vector2.zero;
-		if (left.rigidbody != null && left.rigidbody.isKinematic) {
+		if (left.rigidbody != null && left.rigidbody.isKinematic && !left.collider.isTrigger) {
 			velToAdd = left.rigidbody.velocity;
-		} else if (middle.rigidbody && middle.rigidbody.isKinematic) {
+		} else if (middle.rigidbody != null && middle.rigidbody.isKinematic && !middle.collider.isTrigger) {
 			velToAdd = middle.rigidbody.velocity;
-		} else if (right.rigidbody && right.rigidbody.isKinematic) {
+		} else if (right.rigidbody != null && right.rigidbody.isKinematic && !right.collider.isTrigger) {
 			velToAdd = right.rigidbody.velocity;
 		}
 
 
-		bool grounded = (left && left.collider) || (middle && middle.collider) || (right && right.collider);
+		bool grounded = (left && left.collider && !left.collider.isTrigger) || (middle && middle.collider && !middle.collider.isTrigger) || (right && right.collider && !right.collider.isTrigger);
 		if (paused || !hasControl) {
 			rb.velocity = Vector2.zero + velToAdd;
 		} else {
 			float jump_speed = 0f;
-			float tmpSpeed = !grounded ? speed * 0.5f : speed;
-
-			if (Input.GetKeyDown (KeyCode.Space) && grounded) {
+			rb.velocity = new Vector2(0.0f, rb.velocity.y) + velToAdd;
+			if ((Input.GetKeyDown (KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && grounded) {
 				jump_speed = jump + (0.1f * rb.velocity.x);
 				rb.velocity = velToAdd + new Vector2 (rb.velocity.x, jump_speed);
-			} else if (Input.GetKey (KeyCode.D) && rb.velocity.x < tmpSpeed) {
-				rb.velocity = velToAdd + new Vector2 (tmpSpeed, rb.velocity.y);
-			} else if (Input.GetKey (KeyCode.A) && rb.velocity.x > -tmpSpeed) {
-				rb.velocity = velToAdd + new Vector2 (-tmpSpeed, rb.velocity.y);
+			} else if ((Input.GetKey (KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && rb.velocity.x < speed) {
+				rb.velocity = velToAdd + new Vector2 (speed, rb.velocity.y);
+			} else if ((Input.GetKey (KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && rb.velocity.x > -speed) {
+				rb.velocity = velToAdd + new Vector2 (-speed, rb.velocity.y);
 			}
 
 			if (dialogueAvail && Input.GetKey (KeyCode.F)) {
@@ -89,12 +90,28 @@ public class SideScrollingPlayer : Player {
 			}
 		}
 
-        if (rb.velocity.x < -0.01f) {
-            this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
-        } else if (rb.velocity.x > 0.01f)
-        {
+
+        if (rb.velocity.x < 0) {
             this.transform.localScale = new Vector3(-1, this.transform.localScale.y, this.transform.localScale.z);
+        } else if (rb.velocity.x > 0)
+        {
+            this.transform.localScale = new Vector3(1, this.transform.localScale.y, this.transform.localScale.z);
         }
+	}
+
+	void FixedUpdate(){
+		float dist = new Vector2(rb.velocity.x, 0).magnitude * Time.fixedDeltaTime;
+		RaycastHit2D[] inside = Physics2D.BoxCastAll (((Vector2)this.transform.position), new Vector2(1, 1), 0, (Vector2)rb.velocity, dist);
+		bool willCollide = false;
+		foreach (RaycastHit2D hit in inside) {
+			willCollide = willCollide || !hit.collider.isTrigger;
+			if (willCollide) {
+				break;
+			}
+		}
+		if(willCollide){
+			rb.velocity = new Vector2 (0, rb.velocity.y);
+		}
 	}
 
 	private void checkOutOfBounds(){
@@ -146,14 +163,22 @@ public class SideScrollingPlayer : Player {
 		}
 	}
 
+	public void ElevatorRide(Elevator target){
+		if (hasControl) {
+			StartCoroutine ("ElevatorCoroutine", target);
+		}
+	}
+
     // Fades in the blackout object, waits a bit, then moves the player to the new room
     IEnumerator WalkBetweenRoomsCoroutine(Door door)
     {
         // Remove player control
 		roomManager = FindObjectOfType<RoomManager>();
+		roomManager.currentRoom.TogHuntPause (true);
 		Room newRoom = door.GetDestinationDoor().GetMyRoom();
 		roomManager.SetCurrentRoom(newRoom);
         hasControl = false;
+		paused = true;
 		roomManager.roomTransition = true;
         this.GetComponent<Rigidbody2D>().velocity = new Vector2(0.0f, 0.0f);
         
@@ -188,8 +213,53 @@ public class SideScrollingPlayer : Player {
         // Reenable Control
 
         hasControl = true;
+		paused = false;
+		roomManager.currentRoom.TogHuntPause (false);
 		roomManager.roomTransition = false;
     }
+
+	IEnumerator ElevatorCoroutine(Elevator target){
+		// Remove player control
+		roomManager = FindObjectOfType<RoomManager>();
+		Room newRoom = target.GetMyRoom();
+		roomManager.SetCurrentRoom(newRoom);
+		hasControl = false;
+		roomManager.roomTransition = true;
+		this.GetComponent<Rigidbody2D>().velocity = new Vector2(0.0f, 0.0f);
+
+		// Assign new current room
+		// Drop the blackout object over the camera
+		yield return StartCoroutine(blackout.FadeInBlack());
+
+		// Set the camera bounds to the new room
+		newRoom.SetLimits();
+
+		// Set the position to move towards (Note that we use the player's z location)
+		Vector3 goToPosition = new Vector3(target.GetMyDestination().position.x, 
+			target.GetMyDestination().position.y, this.gameObject.transform.position.z); 
+
+		// Move player to new room
+		while (Vector3.Distance(this.gameObject.transform.position, goToPosition) > 0.01f)
+		{
+			this.gameObject.transform.position = goToPosition;
+			yield return null;
+		}
+
+		rb.velocity = new Vector2 (0, 0);
+		// Wait half a second for dramatic flair
+		yield return new WaitForSeconds(0.5f);
+
+		// Pull the blackout object off the camera
+		yield return StartCoroutine(blackout.FadeOutBlack());
+
+		// Now that the old room is offscree we can clean it up
+		roomManager.CleanUpRooms();
+
+		// Reenable Control
+
+		hasControl = true;
+		roomManager.roomTransition = false;
+	}
 
 	public void EnterVent(Vent vent)
 	{
@@ -235,9 +305,7 @@ public class SideScrollingPlayer : Player {
 				EnterVent (other.GetComponent<Vent> ());
 			}
 		} else if (other.GetComponent<Hunter> () != null && !inVent) {
-			foodCollected = 0;
-			StartCoroutine (blackout.FadeInBlack ());
-			SceneManager.LoadSceneAsync ("OverworldExampleScene"); // Change this later to a scene with an animation when we have animations
+			StartCoroutine ("HunterAttack", other.GetComponent<Hunter> ());
 		} else if (other.GetComponent<SavePoint> () != null) {
 			other.GetComponent<SavePoint> ().revSave ();
 			abilityCont.SaveZone (true);
@@ -269,6 +337,7 @@ public class SideScrollingPlayer : Player {
 			print ("No Game Received!");
 			yield break;
 		}
+		minigame.drone = true;
 		minigame.BeginGame();
 		while (!minigame.CheckFinished(ref succeeded)) {
 			yield return new WaitForSecondsRealtime (1);
@@ -280,7 +349,34 @@ public class SideScrollingPlayer : Player {
 		StartTime ();
 		ToggleAbilityControl ();
 		StartCoroutine (blackout.FadeOutBlack ());
-		abilityCont.NotifyTakedown ();
+	}
+
+	IEnumerator HunterAttack(Hunter target){
+		ToggleAbilityControl ();
+		StartCoroutine (blackout.FadeInBlack ());
+		bool succeeded = false;
+		StopTime ();
+		TakedownGame minigame = TakedownGame.GetRandGame();
+		if (minigame == null) {
+			print ("No Game Received!");
+			yield break;
+		}
+		minigame.drone = false;
+		minigame.BeginGame();
+		while (!minigame.CheckFinished(ref succeeded)) {
+			yield return new WaitForSecondsRealtime (1);
+		}
+		Destroy (minigame);
+		StartTime ();
+		ToggleAbilityControl ();
+		if (succeeded) {
+			Destroy (target.gameObject);
+			StartCoroutine (blackout.FadeOutBlack ());
+		} else {
+			foodCollected = 0;
+			StartCoroutine (blackout.FadeInBlack ());
+			SceneManager.LoadSceneAsync (StateSaver.gameState.curArea.name);
+		}
 	}
 
 	public void StopTime(){
@@ -296,4 +392,6 @@ public class SideScrollingPlayer : Player {
 	public void ToggleAbilityControl(){
 		abilityCont.gameObject.SetActive (!abilityCont.gameObject.activeSelf);
 	}
+
+
 }

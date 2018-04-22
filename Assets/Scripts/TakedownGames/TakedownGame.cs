@@ -7,6 +7,7 @@ public class TakedownGame : MonoBehaviour {
 	protected bool succeeded = false;
 	protected bool waitingForInput = false;
 	protected static GameObject canvas = null;
+	public bool drone = false;
 
 	// Use this for initialization
 	protected void Start () {
@@ -33,6 +34,7 @@ public class TakedownGame : MonoBehaviour {
 
 	public static TakedownGame GetRandGame(){
 		TakedownGame TdownGame = null;
+		canvas = GameObject.Find ("Canvas");
 		int l = (int)StateSaver.Minigames.num_opts;
 		int r = Random.Range (1, l);
 		StateSaver.Minigames cur = (StateSaver.Minigames)r;
@@ -44,7 +46,6 @@ public class TakedownGame : MonoBehaviour {
 			TdownGame = ((GameObject)Instantiate (Resources.Load ("Prefabs/Games/Shiv/ShivToTheBeat"))).GetComponent<ShivToTheBeat> ();
 			break;
 		}
-		canvas = GameObject.Find ("Canvas");
 		RectTransform canvasT = canvas.GetComponent<RectTransform> ();
 		TdownGame.transform.SetParent (canvas.transform);
 		TdownGame.transform.localPosition = Vector3.zero;
