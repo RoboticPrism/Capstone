@@ -25,6 +25,10 @@ public class SideScrollingPlayer : Player {
 
 	private AbilityUIControl abilityCont;
 
+	private AudioSource mySound;
+	public AudioClip barkSound;
+	public AudioClip pantSound;
+
     // Use this for initialization
     new void Start () {
         base.Start();
@@ -32,6 +36,7 @@ public class SideScrollingPlayer : Player {
         pickupUIBar = FindObjectOfType<PickupUIBar>();
 		abilityCont = ((GameObject)Instantiate (Resources.Load ("Prefabs/AbilityUI"))).GetComponent<AbilityUIControl>();
 		roomManager = FindObjectOfType<RoomManager>();
+		mySound = this.GetComponent<AudioSource> ();
     }
 	
 	// Update is called once per frame
@@ -39,6 +44,11 @@ public class SideScrollingPlayer : Player {
 		base.Update ();
 		if (!paused) {
 			checkOutOfBounds ();
+		}
+		if (!mySound.isPlaying) {
+			mySound.clip = this.pantSound;
+			mySound.loop = true;
+			mySound.Play ();
 		}
 		LayerMask ignore = ~(1 << LayerMask.NameToLayer ("Detection"));
 		RaycastHit2D left = Physics2D.Raycast (new Vector3(transform.position.x - this.GetComponent<BoxCollider2D> ().bounds.extents.x - 0.01f, transform.position.y - this.GetComponent<BoxCollider2D> ().bounds.extents.y - 0.01f, transform.position.z), Vector2.down, 0.1f, ignore);
@@ -77,6 +87,11 @@ public class SideScrollingPlayer : Player {
 				hasControl = false;
 				roomManager.RevealSniffablesInCurRoom ();
 			} else if (Input.GetKeyUp (KeyCode.Q) && abilityCont.BarkAvailable ()) {
+				if (!mySound.isPlaying || mySound.clip.Equals(pantSound)) {
+					mySound.clip = barkSound;
+					mySound.loop = false;
+					mySound.Play ();
+				}
 				Bark ();
 			} else if (Input.GetKeyUp (KeyCode.R) && abilityCont.SaveAvailable ()) {
 				StateSaver.Save ();
