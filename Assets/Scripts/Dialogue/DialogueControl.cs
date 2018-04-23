@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class DialogueControl : MonoBehaviour {
 
-	private Text fToInteract;
+	public Text fToInteract;
 	private Image dialogueBox;
 	private Dictionary<string, DialogueFrame> frameMap = new Dictionary<string, DialogueFrame> ();
 	private bool inDialogue = false;
@@ -13,7 +13,7 @@ public class DialogueControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		fToInteract = this.gameObject.transform.Find ("FToInteract").gameObject.GetComponent<Text>();
+		//fToInteract = this.gameObject.transform.Find ("FToInteract").gameObject.GetComponent<Text>();
 		dialogueBox = this.gameObject.GetComponent<Image> ();
 		DialogueFrame[] allFrames = this.gameObject.GetComponents<DialogueFrame> ();
 		foreach (DialogueFrame frame in allFrames) {
